@@ -73,21 +73,30 @@ test('dist/client.js ist ein gültiges ESM-Bundle mit Core-ImportMap-Externals',
   assert.match(bundleCode, /export\s*\{[\s\S]*default[\s\S]*\}/);
 });
 
+test('dist/client.css enthält Tailwind-Layout- und Scroll-Klassen für Overlay-Modals', async () => {
+  const cssCode = await fs.readFile(path.join(ROOT_DIR, 'dist/client.css'), 'utf8');
+  assert.match(cssCode, /\.overflow-y-auto/);
+  assert.match(cssCode, /\.fixed/);
+  assert.match(cssCode, /\.inset-0/);
+});
+
 test('dist/server.js ist ein gültiges ESM-Backend-Modul', async () => {
   const serverCode = await fs.readFile(path.join(ROOT_DIR, 'dist/server.js'), 'utf8');
   assert.match(serverCode, /mod_attendance_events/);
   assert.match(serverCode, /export\s*\{[\s\S]*default[\s\S]*\}/);
 });
 
-test('Release-Packaging erzeugt valides USTAR .tar.gz inkl. server.js und migrations', async () => {
+test('Release-Packaging erzeugt valides USTAR .tar.gz inkl. client.css, server.js und migrations', async () => {
   const { erzeugeTarGzBuffer } = await import(path.join(ROOT_DIR, 'scripts/pack.mjs'));
   const manifestBuf = await fs.readFile(path.join(ROOT_DIR, 'plugin.manifest.json'));
   const clientBuf = await fs.readFile(path.join(ROOT_DIR, 'dist/client.js'));
+  const cssBuf = await fs.readFile(path.join(ROOT_DIR, 'dist/client.css'));
   const serverBuf = await fs.readFile(path.join(ROOT_DIR, 'dist/server.js'));
   const migrationBuf = await fs.readFile(path.join(ROOT_DIR, 'migrations/001_init.sql'));
 
   const gz = erzeugeTarGzBuffer({
     'plugin.manifest.json': manifestBuf,
+    'dist/client.css': cssBuf,
     'dist/client.js': clientBuf,
     'dist/server.js': serverBuf,
     'migrations/001_init.sql': migrationBuf,
@@ -120,6 +129,7 @@ test('Release-Packaging erzeugt valides USTAR .tar.gz inkl. server.js und migrat
 
   assert.deepEqual(eintraege, [
     'plugin.manifest.json',
+    'dist/client.css',
     'dist/client.js',
     'dist/server.js',
     'migrations/001_init.sql',

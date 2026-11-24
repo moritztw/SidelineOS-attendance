@@ -1,9 +1,12 @@
+import { compile, optimize } from '@tailwindcss/node';
+import { Scanner } from '@tailwindcss/oxide';
 import { build } from 'esbuild';
 import fs from 'node:fs/promises';
 import { builtinModules } from 'node:module';
 import path from 'node:path';
 
 const ROOT_DIR = path.resolve(import.meta.dirname, '..');
+const SRC_DIR = path.join(ROOT_DIR, 'src');
 const DIST_DIR = path.join(ROOT_DIR, 'dist');
 
 /** Verbindliche ImportMap-Externals aus SidelineOS-Core (index.html / pluginRuntime.ts). */
@@ -22,13 +25,30 @@ const NODE_EXTERNALS = [
   '@sidelineos/plugin-sdk',
 ];
 
+async function buildClientCss() {
+  const cssEntry = path.join(SRC_DIR, 'client.css');
+  const cssSource = await fs.readFile(cssEntry, 'utf8');
+  const compiler = await compile(cssSource, {
+    base: SRC_DIR,
+    onDependency: () => {},
+  });
+
+  const scanner = new Scanner({
+    sources: [{ base: SRC_DIR, pattern: '**/*.{ts,tsx}', negated: false }],
+  });
+  const candidates = scanner.scan();
+  const rawCss = compiler.build(candidates);
+  const optimized = optimize(rawCss, { minify: true });
+  await fs.writeFile(path.join(DIST_DIR, 'client.css'), optimized.code, 'utf8');
+}
+
 async function runBuild() {
   await fs.rm(DIST_DIR, { recursive: true, force: true });
   await fs.mkdir(DIST_DIR, { recursive: true });
 
   await Promise.all([
     build({
-      entryPoints: [path.join(ROOT_DIR, 'src/client.tsx')],
+      entryPoints: [path.join(SRC_DIR, 'client.tsx')],
       outfile: path.join(DIST_DIR, 'client.js'),
       bundle: true,
       format: 'esm',
@@ -40,7 +60,7 @@ async function runBuild() {
       external: CORE_IMPORTMAP_EXTERNALS,
     }),
     build({
-      entryPoints: [path.join(ROOT_DIR, 'src/server.ts')],
+      entryPoints: [path.join(SRC_DIR, 'server.ts')],
       outfile: path.join(DIST_DIR, 'server.js'),
       bundle: true,
       format: 'esm',
@@ -48,20 +68,19 @@ async function runBuild() {
       target: ['node22'],
       sourcemap: false,
       minify: false,
-      loader: {
-        '.sql': 'text',
-      },
       external: NODE_EXTERNALS,
     }),
+    buildClientCss(),
   ]);
 
-  const [clientStat, serverStat] = await Promise.all([
+  const [clientStat, cssStat, serverStat] = await Promise.all([
     fs.stat(path.join(DIST_DIR, 'client.js')),
+    fs.stat(path.join(DIST_DIR, 'client.css')),
     fs.stat(path.join(DIST_DIR, 'server.js')),
   ]);
 
   console.log(
-    `Build abgeschlossen: dist/client.js (${clientStat.size} Bytes), dist/server.js (${serverStat.size} Bytes)`
+    `Build abgeschlossen: dist/client.js (${clientStat.size} Bytes), dist/client.css (${cssStat.size} Bytes), dist/server.js (${serverStat.size} Bytes)`
   );
 }
 

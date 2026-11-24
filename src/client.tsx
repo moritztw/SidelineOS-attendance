@@ -25,7 +25,12 @@ import {
 import { AbsencesView } from './components/AbsencesView.tsx';
 import { CalendarView } from './components/CalendarView.tsx';
 import { EventDetailDrawer } from './components/EventDetailDrawer.tsx';
-import { EventFormModal } from './components/EventFormModal.tsx';
+import {
+  EventFormModal,
+  EventFormTabView,
+  createEventFormDraft,
+  type EventFormDraft,
+} from './components/EventFormModal.tsx';
 import { LiveCheckInView } from './components/LiveCheckInView.tsx';
 import { TeamSettingsPanel, UserSettingsPanel } from './components/SettingsPanels.tsx';
 import { StatsView } from './components/StatsView.tsx';
@@ -55,8 +60,11 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
   const [eventDetail, setEventDetail] = useState<EventDetailView | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
 
+  const defaultCutoffMinutes = bootstrap?.settings.defaultCutoffMinutes ?? 240;
   const [showEventModal, setShowEventModal] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<AttendanceEvent | null>(null);
+  const [eventDraft, setEventDraft] = useState<EventFormDraft>(() =>
+    createEventFormDraft(240, null)
+  );
 
   const attachmentAdapter = useMemo(
     () => createEventAttachmentAdapter(ctx.team.id),
@@ -107,14 +115,21 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
     }
   }, [selectedEventId, loadDetail]);
 
+  const openOverlayForEvent = useCallback(
+    (event?: AttendanceEvent | null) => {
+      setEventDraft(createEventFormDraft(defaultCutoffMinutes, event ?? null));
+      setShowEventModal(true);
+    },
+    [defaultCutoffMinutes]
+  );
+
   useEffect(() => {
     const onOpenCreate = () => {
-      setEditingEvent(null);
-      setShowEventModal(true);
+      openOverlayForEvent(null);
     };
     window.addEventListener(OPEN_CREATE_MODAL_EVENT, onOpenCreate);
     return () => window.removeEventListener(OPEN_CREATE_MODAL_EVENT, onOpenCreate);
-  }, []);
+  }, [openOverlayForEvent]);
 
   async function handleRsvp(
     eventId: string,
@@ -139,6 +154,11 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
       await updateEvent(ctx.team.id, eventId, payload);
     } else {
       await createEvent(ctx.team.id, payload);
+    }
+    setEventDraft(createEventFormDraft(defaultCutoffMinutes, null));
+    setShowEventModal(false);
+    if (ctx.aktuellerTab === 'editor') {
+      ctx.onTabWechseln('calendar');
     }
     await loadAll();
     if (eventId && selectedEventId === eventId) {
@@ -208,10 +228,7 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
           locale={ctx.locale}
           onBack={() => setSelectedEventId(null)}
           onSubmitRsvp={handleRsvp}
-          onEditEvent={(detail) => {
-            setEditingEvent(detail.event);
-            setShowEventModal(true);
-          }}
+          onEditEvent={(detail) => openOverlayForEvent(detail.event)}
           onDeleteEvent={handleDeleteEvent}
           onReloadDetail={() => void loadDetail(selectedEventId)}
         />
@@ -285,10 +302,7 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
               {isStaff && (
                 <button
                   type="button"
-                  onClick={() => {
-                    setEditingEvent(null);
-                    setShowEventModal(true);
-                  }}
+                  onClick={() => openOverlayForEvent(null)}
                   className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-xs font-medium text-white inline-flex items-center gap-1.5"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -305,10 +319,7 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
           locale={ctx.locale}
           onSelectEvent={(id) => setSelectedEventId(id)}
           onQuickRsvp={(id, st) => handleRsvp(id, st, '')}
-          onCreateEvent={() => {
-            setEditingEvent(null);
-            setShowEventModal(true);
-          }}
+          onCreateEvent={() => openOverlayForEvent(null)}
         />
       ) : ctx.aktuellerTab === 'absences' ? (
         <AbsencesView
@@ -340,6 +351,23 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
           onSaveCheckIn={handleSaveCheckIn}
           onOpenTeamSettings={ctx.onTeamSettingsOeffnen}
         />
+      ) : ctx.aktuellerTab === 'editor' && isStaff ? (
+        <EventFormTabView
+          season={ctx.gewaehlteSaison}
+          draft={eventDraft}
+          onDraftChange={setEventDraft}
+          roster={bootstrap?.roster ?? []}
+          locale={ctx.locale}
+          onCancel={() => {
+            setEventDraft(createEventFormDraft(defaultCutoffMinutes, null));
+            ctx.onTabWechseln('calendar');
+          }}
+          onPopInOverlay={() => {
+            ctx.onTabWechseln('calendar');
+            setShowEventModal(true);
+          }}
+          onSave={handleSaveEvent}
+        />
       ) : (
         <StatsView
           teamId={ctx.team.id}
@@ -352,13 +380,14 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
       {showEventModal && isStaff && (
         <EventFormModal
           season={ctx.gewaehlteSaison}
-          defaultCutoffMinutes={bootstrap?.settings.defaultCutoffMinutes ?? 240}
+          draft={eventDraft}
+          onDraftChange={setEventDraft}
           roster={bootstrap?.roster ?? []}
-          editingEvent={editingEvent}
           locale={ctx.locale}
-          onClose={() => {
+          onClose={() => setShowEventModal(false)}
+          onPopOutToTab={() => {
             setShowEventModal(false);
-            setEditingEvent(null);
+            ctx.onTabWechseln('editor');
           }}
           onSave={handleSaveEvent}
         />
@@ -377,6 +406,9 @@ function getAttendanceTabs({ teamRolle, locale }: { teamRolle: TeamRolle; locale
     base.push({ id: 'checkin', label: tAttendance(locale, 'tabCheckIn') });
   }
   base.push({ id: 'stats', label: tAttendance(locale, 'tabStats') });
+  if (teamRolle === 'TEAM_ADMIN' || teamRolle === 'COACH') {
+    base.push({ id: 'editor', label: tAttendance(locale, 'tabEditor') });
+  }
   return base;
 }
 
