@@ -203,14 +203,17 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
 
   if (loading && !bootstrap) {
     return (
-      <div className="rounded-xl border border-slate-800 bg-[#12171d] p-8 text-center text-sm text-slate-400">
-        {tAttendance(ctx.locale, 'loadingText')}
+      <div className="sl-attendance-scope">
+        <div className="rounded-xl border border-slate-800 bg-[#12171d] p-8 text-center text-sm text-slate-400">
+          {tAttendance(ctx.locale, 'loadingText')}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-5">
+    <div className="sl-attendance-scope">
+      <div className="space-y-5">
       {error && (
         <div className="rounded-lg border border-red-900/60 bg-red-950/30 px-4 py-3 text-xs text-red-300">
           {error}
@@ -392,6 +395,7 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
           onSave={handleSaveEvent}
         />
       )}
+      </div>
     </div>
   );
 }

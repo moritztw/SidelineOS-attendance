@@ -73,11 +73,14 @@ test('dist/client.js ist ein gültiges ESM-Bundle mit Core-ImportMap-Externals',
   assert.match(bundleCode, /export\s*\{[\s\S]*default[\s\S]*\}/);
 });
 
-test('dist/client.css enthält Tailwind-Layout- und Scroll-Klassen für Overlay-Modals', async () => {
+test('dist/client.css kapselt alle Layout-, Theme- und Scroll-Klassen strikt in .sl-attendance-scope', async () => {
   const cssCode = await fs.readFile(path.join(ROOT_DIR, 'dist/client.css'), 'utf8');
-  assert.match(cssCode, /\.overflow-y-auto/);
-  assert.match(cssCode, /\.fixed/);
-  assert.match(cssCode, /\.inset-0/);
+  assert.doesNotMatch(cssCode, /:root\b/);
+  assert.doesNotMatch(cssCode, /:host\b/);
+  assert.match(cssCode, /\.sl-attendance-scope\s+\.overflow-y-auto/);
+  assert.match(cssCode, /\.sl-attendance-scope\s+\.fixed/);
+  assert.match(cssCode, /\.sl-attendance-scope\s+\.inset-0/);
+  assert.match(cssCode, /@layer utilities/);
 });
 
 test('dist/server.js ist ein gültiges ESM-Backend-Modul', async () => {

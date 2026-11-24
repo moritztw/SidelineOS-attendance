@@ -83,10 +83,11 @@ export function TeamSettingsPanel({ ctx }: { ctx: PluginSettingsKontext }) {
   }
 
   return (
-    <section
-      id="modul-attendance-team-config"
-      className="rounded-xl border border-slate-800 bg-[#12171d] p-6 space-y-5"
-    >
+    <div className="sl-attendance-scope">
+      <section
+        id="modul-attendance-team-config"
+        className="rounded-xl border border-slate-800 bg-[#12171d] p-6 space-y-5"
+      >
       <header className="space-y-1 border-b border-slate-800 pb-3">
         <h3 className="text-base font-semibold text-white">
           {isEn ? 'Attendance, Deadlines & Check-In' : 'Anwesenheit, Fristen & Check-In'}
@@ -219,7 +220,8 @@ export function TeamSettingsPanel({ ctx }: { ctx: PluginSettingsKontext }) {
           </div>
         </form>
       )}
-    </section>
+      </section>
+    </div>
   );
 }
 
@@ -267,10 +269,11 @@ export function UserSettingsPanel({ ctx }: { ctx: PluginSettingsKontext }) {
   }
 
   return (
-    <section
-      id="modul-attendance-user-prefs"
-      className="rounded-xl border border-slate-800 bg-[#12171d] p-6 space-y-4"
-    >
+    <div className="sl-attendance-scope">
+      <section
+        id="modul-attendance-user-prefs"
+        className="rounded-xl border border-slate-800 bg-[#12171d] p-6 space-y-4"
+      >
       <header className="space-y-1 border-b border-slate-800 pb-3">
         <h3 className="text-base font-semibold text-white">
           {isEn ? 'Attendance & Reminders' : 'Anwesenheit & Erinnerungen'}
@@ -327,6 +330,7 @@ export function UserSettingsPanel({ ctx }: { ctx: PluginSettingsKontext }) {
           </div>
         </form>
       )}
-    </section>
+      </section>
+    </div>
   );
 }

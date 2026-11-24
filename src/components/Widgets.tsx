@@ -38,20 +38,22 @@ export function PlayerNextEventWidget({
 
   if (!event) {
     return (
-      <section className="rounded-xl border border-slate-800 bg-[#12171d] p-5 space-y-2">
-        <div className="flex items-center gap-2 text-slate-400 text-xs">
-          <Calendar className="w-4 h-4" />
-          <span>{isEn ? 'Next invited event' : 'Nächster eingeladener Termin'}</span>
-        </div>
-        <p className="text-sm font-medium text-white">
-          {isEn ? 'No upcoming invitations' : 'Aktuell stehen keine eingeladenen Termine an'}
-        </p>
-        <p className="text-xs text-slate-400">
-          {isEn
-            ? 'New practices and positional meetings will appear here automatically.'
-            : 'Sobald Coaches neue Trainings oder Meetings anlegen, kannst du hier direkt zusagen.'}
-        </p>
-      </section>
+      <div className="sl-attendance-scope">
+        <section className="rounded-xl border border-slate-800 bg-[#12171d] p-5 space-y-2">
+          <div className="flex items-center gap-2 text-slate-400 text-xs">
+            <Calendar className="w-4 h-4" />
+            <span>{isEn ? 'Next invited event' : 'Nächster eingeladener Termin'}</span>
+          </div>
+          <p className="text-sm font-medium text-white">
+            {isEn ? 'No upcoming invitations' : 'Aktuell stehen keine eingeladenen Termine an'}
+          </p>
+          <p className="text-xs text-slate-400">
+            {isEn
+              ? 'New practices and positional meetings will appear here automatically.'
+              : 'Sobald Coaches neue Trainings oder Meetings anlegen, kannst du hier direkt zusagen.'}
+          </p>
+        </section>
+      </div>
     );
   }
 
@@ -69,7 +71,8 @@ export function PlayerNextEventWidget({
   const currentMeta = currentStatus ? STATUS_META[currentStatus] : null;
 
   return (
-    <section className="rounded-xl border border-slate-800 bg-[#12171d] p-5 space-y-4">
+    <div className="sl-attendance-scope">
+      <section className="rounded-xl border border-slate-800 bg-[#12171d] p-5 space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1 min-w-0">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-slate-400">
@@ -175,7 +178,8 @@ export function PlayerNextEventWidget({
         )}
         {feedback && <p className="text-xs text-emerald-400">{feedback}</p>}
       </div>
-    </section>
+      </section>
+    </div>
   );
 }
 
@@ -200,12 +204,14 @@ export function StaffResponseRateWidget({
 
   if (!event) {
     return (
-      <section className="rounded-xl border border-slate-800 bg-[#12171d] p-5 space-y-2">
-        <p className="text-xs text-slate-400">{isEn ? 'Staff Overview' : 'Staff-Rückmeldequote'}</p>
-        <p className="text-sm font-medium text-white">
-          {isEn ? 'No upcoming event scheduled' : 'Kein anstehender Termin geplant'}
-        </p>
-      </section>
+      <div className="sl-attendance-scope">
+        <section className="rounded-xl border border-slate-800 bg-[#12171d] p-5 space-y-2">
+          <p className="text-xs text-slate-400">{isEn ? 'Staff Overview' : 'Staff-Rückmeldequote'}</p>
+          <p className="text-sm font-medium text-white">
+            {isEn ? 'No upcoming event scheduled' : 'Kein anstehender Termin geplant'}
+          </p>
+        </section>
+      </div>
     );
   }
 
@@ -214,7 +220,8 @@ export function StaffResponseRateWidget({
     event.counts.invited > 0 ? Math.round((answered / event.counts.invited) * 100) : 0;
 
   return (
-    <section className="rounded-xl border border-slate-800 bg-[#12171d] p-5 space-y-4">
+    <div className="sl-attendance-scope">
+      <section className="rounded-xl border border-slate-800 bg-[#12171d] p-5 space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-xs text-slate-400">
@@ -314,6 +321,7 @@ export function StaffResponseRateWidget({
           <ChevronRight className="w-3.5 h-3.5" />
         </button>
       </div>
-    </section>
+      </section>
+    </div>
   );
 }

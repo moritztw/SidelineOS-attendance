@@ -580,82 +580,84 @@ export function EventFormModal({
   }
 
   const content = (
-    <div
-      role="dialog"
-      aria-modal="true"
-      className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-3 sm:p-6"
-    >
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-2xl max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-3rem)] flex flex-col rounded-xl border border-slate-800 bg-[#12171d] overflow-hidden shadow-2xl"
+    <div className="sl-attendance-scope">
+      <div
+        role="dialog"
+        aria-modal="true"
+        className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-3 sm:p-6"
       >
-        <div className="shrink-0 flex items-center justify-between gap-3 px-5 py-4 border-b border-slate-800 bg-[#12171d]">
-          <h2 className="text-base font-semibold text-white truncate">
-            {isEditing
-              ? isEn
-                ? 'Edit Event'
-                : 'Termin bearbeiten'
-              : isEn
-                ? 'Create Event or Series'
-                : 'Neuen Termin oder Serie anlegen'}
-          </h2>
-          <div className="flex items-center gap-1.5 shrink-0">
-            <button
-              type="button"
-              onClick={onPopOutToTab}
-              className="px-2.5 py-1.5 rounded-lg border border-slate-700 hover:bg-slate-800 text-xs font-medium text-slate-200 inline-flex items-center gap-1.5 whitespace-nowrap"
-            >
-              <PanelTop className="w-3.5 h-3.5" />
-              <span>{isEn ? 'Open in Tab' : 'In Tab öffnen'}</span>
-            </button>
+        <form
+          onSubmit={handleSubmit}
+          className="w-full max-w-2xl max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-3rem)] flex flex-col rounded-xl border border-slate-800 bg-[#12171d] overflow-hidden shadow-2xl"
+        >
+          <div className="shrink-0 flex items-center justify-between gap-3 px-5 py-4 border-b border-slate-800 bg-[#12171d]">
+            <h2 className="text-base font-semibold text-white truncate">
+              {isEditing
+                ? isEn
+                  ? 'Edit Event'
+                  : 'Termin bearbeiten'
+                : isEn
+                  ? 'Create Event or Series'
+                  : 'Neuen Termin oder Serie anlegen'}
+            </h2>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={onPopOutToTab}
+                className="px-2.5 py-1.5 rounded-lg border border-slate-700 hover:bg-slate-800 text-xs font-medium text-slate-200 inline-flex items-center gap-1.5 whitespace-nowrap"
+              >
+                <PanelTop className="w-3.5 h-3.5" />
+                <span>{isEn ? 'Open in Tab' : 'In Tab öffnen'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label={isEn ? 'Close' : 'Schließen'}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-5 py-4 space-y-4">
+            <EventFormFields
+              draft={draft}
+              onDraftChange={onDraftChange}
+              roster={roster}
+              locale={locale}
+            />
+            {error && <p className="text-xs text-red-400">{error}</p>}
+          </div>
+
+          <div className="shrink-0 flex items-center justify-end gap-2 px-5 py-3.5 border-t border-slate-800 bg-[#0b0e11]">
             <button
               type="button"
               onClick={onClose}
-              aria-label={isEn ? 'Close' : 'Schließen'}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+              className="px-4 py-2 rounded-lg border border-slate-800 text-xs font-medium text-slate-300 hover:text-white"
             >
-              <X className="w-4 h-4" />
+              {isEn ? 'Cancel' : 'Abbrechen'}
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-xs font-medium text-white disabled:opacity-50"
+            >
+              {saving
+                ? isEn
+                  ? 'Saving…'
+                  : 'Speichert…'
+                : isEditing
+                  ? isEn
+                    ? 'Save changes'
+                    : 'Änderungen speichern'
+                  : isEn
+                    ? 'Create Event'
+                    : 'Termin anlegen'}
             </button>
           </div>
-        </div>
-
-        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-5 py-4 space-y-4">
-          <EventFormFields
-            draft={draft}
-            onDraftChange={onDraftChange}
-            roster={roster}
-            locale={locale}
-          />
-          {error && <p className="text-xs text-red-400">{error}</p>}
-        </div>
-
-        <div className="shrink-0 flex items-center justify-end gap-2 px-5 py-3.5 border-t border-slate-800 bg-[#0b0e11]">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 rounded-lg border border-slate-800 text-xs font-medium text-slate-300 hover:text-white"
-          >
-            {isEn ? 'Cancel' : 'Abbrechen'}
-          </button>
-          <button
-            type="submit"
-            disabled={saving}
-            className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-xs font-medium text-white disabled:opacity-50"
-          >
-            {saving
-              ? isEn
-                ? 'Saving…'
-                : 'Speichert…'
-              : isEditing
-                ? isEn
-                  ? 'Save changes'
-                  : 'Änderungen speichern'
-                : isEn
-                  ? 'Create Event'
-                  : 'Termin anlegen'}
-          </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 

@@ -25,6 +25,8 @@ const NODE_EXTERNALS = [
   '@sidelineos/plugin-sdk',
 ];
 
+const CSS_SCOPE_SELECTOR = '.sl-attendance-scope';
+
 async function buildClientCss() {
   const cssEntry = path.join(SRC_DIR, 'client.css');
   const cssSource = await fs.readFile(cssEntry, 'utf8');
@@ -38,7 +40,37 @@ async function buildClientCss() {
   });
   const candidates = scanner.scan();
   const rawCss = compiler.build(candidates);
-  const optimized = optimize(rawCss, { minify: true });
+
+  // Globale Tailwind-Selektoren (:root, :host, *) strikt auf das Plugin-Root-Element isolieren,
+  // damit weder CSS-Variablen noch Utility-Klassen in SidelineOS-Core auslaufen.
+  const normalized = optimize(rawCss, { minify: false }).code;
+  const scopedCss = normalized
+    .replaceAll(':root, :host', CSS_SCOPE_SELECTOR)
+    .replaceAll(
+      '*, ::before, ::after, ::backdrop',
+      `${CSS_SCOPE_SELECTOR}, ${CSS_SCOPE_SELECTOR} *, ${CSS_SCOPE_SELECTOR} ::before, ${CSS_SCOPE_SELECTOR} ::after, ${CSS_SCOPE_SELECTOR} ::backdrop`
+    )
+    .replaceAll(
+      '*, :before, :after, ::backdrop',
+      `${CSS_SCOPE_SELECTOR}, ${CSS_SCOPE_SELECTOR} *, ${CSS_SCOPE_SELECTOR} :before, ${CSS_SCOPE_SELECTOR} :after, ${CSS_SCOPE_SELECTOR} ::backdrop`
+    );
+
+  const prettyCheck = optimize(scopedCss, { minify: false }).code;
+  const leakedLines = prettyCheck
+    .split('\n')
+    .filter(
+      (line) =>
+        line.includes('{') &&
+        !line.trim().startsWith('@') &&
+        !line.includes(CSS_SCOPE_SELECTOR)
+    );
+  if (leakedLines.length > 0 || /:root\b|:host\b/.test(prettyCheck)) {
+    throw new Error(
+      `Unisolierte CSS-Selektoren gefunden: ${leakedLines.join('; ')}`
+    );
+  }
+
+  const optimized = optimize(scopedCss, { minify: true });
   await fs.writeFile(path.join(DIST_DIR, 'client.css'), optimized.code, 'utf8');
 }
 
