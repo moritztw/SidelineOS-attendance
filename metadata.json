@@ -1,0 +1,6 @@
+{
+  "name": "SidelineOS Attendance Plugin",
+  "description": "Anwesenheits-, Kalender- und Verfügbarkeits-Plugin für SidelineOS-Core.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
