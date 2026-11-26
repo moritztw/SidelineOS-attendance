@@ -61,12 +61,12 @@ export function LiveCheckInView({
 
   if (!liveCheckinEnabled) {
     return (
-      <section className="rounded-xl border border-slate-800 bg-[#12171d] p-8 text-center space-y-3">
-        <CheckSquare className="w-8 h-8 text-slate-500 mx-auto" />
-        <h2 className="text-base font-semibold text-white">
+      <section className="rounded-xl border border-sl-border bg-sl-surface p-8 text-center space-y-3">
+        <CheckSquare className="w-8 h-8 text-sl-subtle mx-auto" />
+        <h2 className="text-base font-semibold text-sl-heading">
           {isEn ? 'Live Check-In is disabled' : 'Live-Check-In ist nicht aktiviert'}
         </h2>
-        <p className="text-xs text-slate-400 max-w-md mx-auto">
+        <p className="text-xs text-sl-muted max-w-md mx-auto">
           {isEn
             ? 'Team Admins can enable on-field Soll-vs-Ist check-in in the team attendance settings.'
             : 'Team-Admins können das optionale Live-Check-In-Werkzeug für den Platzbetrieb in den Team-Einstellungen freischalten.'}
@@ -74,7 +74,7 @@ export function LiveCheckInView({
         <button
           type="button"
           onClick={onOpenTeamSettings}
-          className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-white"
+          className="px-4 py-2 rounded-lg border border-sl-border bg-sl-elevated hover:border-sl-border-strong text-xs font-medium text-sl-heading"
         >
           {isEn ? 'Open Team Settings' : 'Team-Einstellungen öffnen'}
         </button>
@@ -111,13 +111,13 @@ export function LiveCheckInView({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-xl border border-slate-800 bg-[#12171d] p-4 flex flex-wrap items-center justify-between gap-3">
+      <div className="rounded-xl border border-sl-border bg-sl-surface p-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2 min-w-0">
           <select
             aria-label={isEn ? 'Select event for check-in' : 'Termin für Check-In wählen'}
             value={selectedEventId ?? ''}
             onChange={(e) => onSelectEvent(e.target.value)}
-            className="px-3 py-2 text-xs rounded-lg border border-slate-800 bg-[#0b0e11] text-white max-w-xs"
+            className="px-3 py-2 text-xs rounded-lg border border-sl-border bg-sl-canvas text-sl-heading max-w-xs"
           >
             {events.map((ev) => (
               <option key={ev.id} value={ev.id}>
@@ -129,7 +129,7 @@ export function LiveCheckInView({
           <select
             value={unitFilter}
             onChange={(e) => setUnitFilter(e.target.value as SpielerUnit | 'ALL')}
-            className="px-3 py-2 text-xs rounded-lg border border-slate-800 bg-[#0b0e11] text-white"
+            className="px-3 py-2 text-xs rounded-lg border border-sl-border bg-sl-canvas text-sl-heading"
           >
             <option value="ALL">{isEn ? 'All Units' : 'Alle Units'}</option>
             <option value="OFFENSE">OFFENSE</option>
@@ -140,7 +140,7 @@ export function LiveCheckInView({
           <select
             value={positionFilter}
             onChange={(e) => setPositionFilter(e.target.value)}
-            className="px-3 py-2 text-xs rounded-lg border border-slate-800 bg-[#0b0e11] text-white"
+            className="px-3 py-2 text-xs rounded-lg border border-sl-border bg-sl-canvas text-sl-heading"
           >
             <option value="ALL">{isEn ? 'All Positions' : 'Alle Positionen'}</option>
             {availablePositions.map((pos) => (
@@ -151,26 +151,26 @@ export function LiveCheckInView({
           </select>
         </div>
 
-        <div className="text-xs font-mono tabular-nums text-slate-300">
-          Ist: <span className="text-emerald-400">{checkedCounts.present} Anwesend</span> ·{' '}
-          <span className="text-amber-400">{checkedCounts.inactive} Inaktiv</span> ·{' '}
-          <span className="text-red-400">{checkedCounts.absent} Abwesend</span> ·{' '}
-          <span className="text-slate-400">{checkedCounts.unchecked} Offen</span>
+        <div className="text-xs font-mono tabular-nums text-sl-primary">
+          Ist: <span className="text-sl-success-text">{checkedCounts.present} Anwesend</span> ·{' '}
+          <span className="text-sl-warning-text">{checkedCounts.inactive} Inaktiv</span> ·{' '}
+          <span className="text-sl-danger-text">{checkedCounts.absent} Abwesend</span> ·{' '}
+          <span className="text-sl-muted">{checkedCounts.unchecked} Offen</span>
         </div>
       </div>
 
-      {error && <p className="text-xs text-red-400">{error}</p>}
+      {error && <p className="text-xs text-sl-danger-text">{error}</p>}
 
       {loadingDetail ? (
-        <div className="rounded-xl border border-slate-800 bg-[#12171d] p-6 text-xs text-slate-400">
+        <div className="rounded-xl border border-sl-border bg-sl-surface p-6 text-xs text-sl-muted">
           {isEn ? 'Loading check-in list…' : 'Check-In-Liste wird geladen…'}
         </div>
       ) : filteredParticipants.length === 0 ? (
-        <div className="rounded-xl border border-slate-800 bg-[#12171d] p-6 text-xs text-slate-400">
+        <div className="rounded-xl border border-sl-border bg-sl-surface p-6 text-xs text-sl-muted">
           {isEn ? 'No invited players for this filter.' : 'Keine eingeladenen Spieler für diesen Filter.'}
         </div>
       ) : (
-        <ul className="divide-y divide-slate-800 rounded-xl border border-slate-800 bg-[#12171d] overflow-hidden">
+        <ul className="divide-y divide-sl-border rounded-xl border border-sl-border bg-sl-surface overflow-hidden">
           {filteredParticipants.map(({ member, response, checkin }) => {
             const sollMeta = response ? STATUS_META[response.status] : null;
             const actual = checkin?.actualStatus ?? null;
@@ -184,21 +184,21 @@ export function LiveCheckInView({
               >
                 <div className="min-w-0 space-y-0.5">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-white truncate">
+                    <span className="text-sm font-medium text-sl-heading truncate">
                       {member.trikotNummer && (
-                        <span className="font-mono tabular-nums text-slate-400 mr-1.5">
+                        <span className="font-mono tabular-nums text-sl-muted mr-1.5">
                           #{member.trikotNummer}
                         </span>
                       )}
                       {member.vollerName}
                     </span>
                     {hasDeviation && (
-                      <span className="text-xs text-amber-400 font-medium">
+                      <span className="text-xs text-sl-warning-text font-medium">
                         {isEn ? 'Soll/Ist diff' : 'Abweichung zu Soll'}
                       </span>
                     )}
                   </div>
-                  <div className="text-xs text-slate-400">
+                  <div className="text-xs text-sl-muted">
                     {member.units.join(', ')}
                     {member.position ? ` · ${member.position}` : ''}
                     {' · '}
@@ -218,9 +218,9 @@ export function LiveCheckInView({
                 <div className="grid grid-cols-3 gap-1.5 shrink-0">
                   {(
                     [
-                      { status: 'PRESENT', label: isEn ? 'Present' : 'Anwesend', Icon: Check, cls: 'bg-emerald-600 border-emerald-500 text-white' },
-                      { status: 'INACTIVE', label: isEn ? 'Inactive' : 'Inaktiv', Icon: PauseCircle, cls: 'bg-amber-600 border-amber-500 text-white' },
-                      { status: 'ABSENT', label: isEn ? 'Absent' : 'Abwesend', Icon: X, cls: 'bg-red-600 border-red-500 text-white' },
+                      { status: 'PRESENT', label: isEn ? 'Present' : 'Anwesend', Icon: Check, cls: 'bg-sl-success border-sl-success text-white' },
+                      { status: 'INACTIVE', label: isEn ? 'Inactive' : 'Inaktiv', Icon: PauseCircle, cls: 'bg-sl-warning-text/15 border-sl-warning-text text-sl-warning-text' },
+                      { status: 'ABSENT', label: isEn ? 'Absent' : 'Abwesend', Icon: X, cls: 'bg-sl-danger border-sl-danger text-white' },
                     ] as const
                   ).map((btn) => {
                     const active = actual === btn.status;
@@ -233,7 +233,7 @@ export function LiveCheckInView({
                         className={`min-h-[44px] px-3 py-2 rounded-lg border text-xs font-medium inline-flex items-center justify-center gap-1.5 whitespace-nowrap ${
                           active
                             ? btn.cls
-                            : 'border-slate-800 bg-[#0b0e11] text-slate-300 hover:border-slate-700'
+                            : 'border-sl-border bg-sl-canvas text-sl-primary hover:border-sl-border-strong'
                         }`}
                       >
                         <btn.Icon className="w-3.5 h-3.5" />

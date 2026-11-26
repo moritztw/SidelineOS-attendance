@@ -14,29 +14,29 @@ export const STATUS_META: Record<
   PRESENT: {
     labelDe: 'Anwesend',
     labelEn: 'Present',
-    activeClass: 'bg-emerald-600 text-white border-emerald-500',
-    textClass: 'text-emerald-400',
+    activeClass: 'bg-sl-success text-white border-sl-success',
+    textClass: 'text-sl-success-text',
     Icon: Check,
   },
   INACTIVE: {
     labelDe: 'Inaktiv',
     labelEn: 'Inactive',
-    activeClass: 'bg-amber-600 text-white border-amber-500',
-    textClass: 'text-amber-400',
+    activeClass: 'bg-sl-warning-text/15 text-sl-warning-text border-sl-warning-text',
+    textClass: 'text-sl-warning-text',
     Icon: PauseCircle,
   },
   UNCERTAIN: {
     labelDe: 'Unsicher',
     labelEn: 'Uncertain',
-    activeClass: 'bg-slate-600 text-white border-slate-500',
-    textClass: 'text-slate-300',
+    activeClass: 'bg-sl-elevated text-sl-heading border-sl-border-strong',
+    textClass: 'text-sl-muted',
     Icon: HelpCircle,
   },
   ABSENT: {
     labelDe: 'Abwesend',
     labelEn: 'Absent',
-    activeClass: 'bg-red-600 text-white border-red-500',
-    textClass: 'text-red-400',
+    activeClass: 'bg-sl-danger text-white border-sl-danger',
+    textClass: 'text-sl-danger-text',
     Icon: X,
   },
 };
@@ -143,10 +143,10 @@ export function StatusSegmentedPicker({
             type="button"
             disabled={disabled || busy}
             onClick={() => onSelect(status)}
-            className={`min-h-[40px] px-3 py-2 rounded-lg border text-xs font-medium inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400 disabled:opacity-45 disabled:cursor-not-allowed ${
+            className={`min-h-[40px] px-3 py-2 rounded-lg border text-xs font-medium inline-flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sl-accent disabled:opacity-45 disabled:cursor-not-allowed ${
               selected
                 ? meta.activeClass
-                : 'border-slate-800 bg-[#0b0e11] text-slate-300 hover:border-slate-700 hover:text-white'
+                : 'border-sl-border bg-sl-canvas text-sl-primary hover:border-sl-border-strong hover:text-sl-heading'
             }`}
           >
             <Icon className="w-3.5 h-3.5 shrink-0" />

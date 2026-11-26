@@ -133,7 +133,7 @@ function EventFormFields({
     <div className="space-y-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="sm:col-span-2 space-y-1">
-          <label className="block text-xs text-slate-400">{isEn ? 'Title' : 'Titel'}</label>
+          <label className="block text-xs text-sl-muted">{isEn ? 'Title' : 'Titel'}</label>
           <input
             type="text"
             required
@@ -144,12 +144,12 @@ function EventFormFields({
                 ? 'e.g. Defense Positional Meeting'
                 : 'z. B. Team-Training / Defense Meeting'
             }
-            className="w-full px-3 py-2 text-sm rounded-lg border border-slate-800 bg-[#0b0e11] text-white focus:outline-none focus:border-sky-500"
+            className="w-full px-3 py-2 text-sm rounded-lg border border-sl-border bg-sl-canvas text-sl-heading placeholder:text-sl-subtle focus:outline-none focus:border-sl-accent"
           />
         </div>
 
         <div className="space-y-1">
-          <label className="block text-xs text-slate-400">
+          <label className="block text-xs text-sl-muted">
             {isEn ? 'Category' : 'Kategorie'}
           </label>
           <select
@@ -157,7 +157,7 @@ function EventFormFields({
             onChange={(e) =>
               onDraftChange({ ...draft, category: e.target.value as EventCategory })
             }
-            className="w-full px-3 py-2 text-sm rounded-lg border border-slate-800 bg-[#0b0e11] text-white focus:outline-none focus:border-sky-500"
+            className="w-full px-3 py-2 text-sm rounded-lg border border-sl-border bg-sl-canvas text-sl-heading focus:outline-none focus:border-sl-accent"
           >
             <option value="TRAINING">{isEn ? 'Practice' : 'Training'}</option>
             <option value="MEETING">Meeting</option>
@@ -167,7 +167,7 @@ function EventFormFields({
         </div>
 
         <div className="space-y-1">
-          <label className="block text-xs text-slate-400">
+          <label className="block text-xs text-sl-muted">
             {isEn ? 'Location' : 'Ort / Platz'}
           </label>
           <input
@@ -175,34 +175,34 @@ function EventFormFields({
             value={draft.location}
             onChange={(e) => onDraftChange({ ...draft, location: e.target.value })}
             placeholder={isEn ? 'Field A / Meeting Room' : 'Hauptplatz / Besprechungsraum'}
-            className="w-full px-3 py-2 text-sm rounded-lg border border-slate-800 bg-[#0b0e11] text-white focus:outline-none focus:border-sky-500"
+            className="w-full px-3 py-2 text-sm rounded-lg border border-sl-border bg-sl-canvas text-sl-heading placeholder:text-sl-subtle focus:outline-none focus:border-sl-accent"
           />
         </div>
 
         <div className="space-y-1">
-          <label className="block text-xs text-slate-400">{isEn ? 'Start' : 'Beginn'}</label>
+          <label className="block text-xs text-sl-muted">{isEn ? 'Start' : 'Beginn'}</label>
           <input
             type="datetime-local"
             required
             value={draft.startsAtLocal}
             onChange={(e) => onDraftChange({ ...draft, startsAtLocal: e.target.value })}
-            className="w-full px-3 py-2 text-sm font-mono rounded-lg border border-slate-800 bg-[#0b0e11] text-white focus:outline-none focus:border-sky-500"
+            className="w-full px-3 py-2 text-sm font-mono rounded-lg border border-sl-border bg-sl-canvas text-sl-heading focus:outline-none focus:border-sl-accent"
           />
         </div>
 
         <div className="space-y-1">
-          <label className="block text-xs text-slate-400">{isEn ? 'End' : 'Ende'}</label>
+          <label className="block text-xs text-sl-muted">{isEn ? 'End' : 'Ende'}</label>
           <input
             type="datetime-local"
             required
             value={draft.endsAtLocal}
             onChange={(e) => onDraftChange({ ...draft, endsAtLocal: e.target.value })}
-            className="w-full px-3 py-2 text-sm font-mono rounded-lg border border-slate-800 bg-[#0b0e11] text-white focus:outline-none focus:border-sky-500"
+            className="w-full px-3 py-2 text-sm font-mono rounded-lg border border-sl-border bg-sl-canvas text-sl-heading focus:outline-none focus:border-sl-accent"
           />
         </div>
 
         <div className="sm:col-span-2 space-y-1">
-          <label className="block text-xs text-slate-400">
+          <label className="block text-xs text-sl-muted">
             {isEn ? 'Description / Notes' : 'Beschreibung / Hinweise'}
           </label>
           <textarea
@@ -210,14 +210,14 @@ function EventFormFields({
             value={draft.description}
             onChange={(e) => onDraftChange({ ...draft, description: e.target.value })}
             placeholder={isEn ? 'Full pads, bring playbook...' : 'Ausrüstung, Treffpunkt, Ablauf…'}
-            className="w-full px-3 py-2 text-sm rounded-lg border border-slate-800 bg-[#0b0e11] text-white focus:outline-none focus:border-sky-500"
+            className="w-full px-3 py-2 text-sm rounded-lg border border-sl-border bg-sl-canvas text-sl-heading placeholder:text-sl-subtle focus:outline-none focus:border-sl-accent"
           />
         </div>
       </div>
 
       {!isEditing && (
-        <div className="pt-3 border-t border-slate-800 space-y-2">
-          <label className="block text-xs font-medium text-slate-300">
+        <div className="pt-3 border-t border-sl-border space-y-2">
+          <label className="block text-xs font-medium text-sl-primary">
             {isEn
               ? 'Series (creates individual events)'
               : 'Terminserie (erzeugt einzelne Pflicht-Termine)'}
@@ -228,7 +228,7 @@ function EventFormFields({
               onChange={(e) =>
                 onDraftChange({ ...draft, recurrenceKind: e.target.value as RecurrenceKind })
               }
-              className="px-3 py-2 text-sm rounded-lg border border-slate-800 bg-[#0b0e11] text-white"
+              className="px-3 py-2 text-sm rounded-lg border border-sl-border bg-sl-canvas text-sl-heading"
             >
               <option value="NONE">{isEn ? 'Single event' : 'Einzeltermin'}</option>
               <option value="WEEKLY">{isEn ? 'Weekly' : 'Wöchentlich'}</option>
@@ -241,7 +241,7 @@ function EventFormFields({
                 value={draft.untilDate}
                 onChange={(e) => onDraftChange({ ...draft, untilDate: e.target.value })}
                 aria-label={isEn ? 'Series end date' : 'Serien-Enddatum'}
-                className="px-3 py-2 text-sm font-mono rounded-lg border border-slate-800 bg-[#0b0e11] text-white"
+                className="px-3 py-2 text-sm font-mono rounded-lg border border-sl-border bg-sl-canvas text-sl-heading"
               />
             )}
           </div>
@@ -249,22 +249,22 @@ function EventFormFields({
       )}
 
       {/* Zielgruppen-Einladung über Core-Units, spezifische Positionen, Rollen & Einzelnutzer */}
-      <div className="pt-3 border-t border-slate-800 space-y-3">
+      <div className="pt-3 border-t border-sl-border space-y-3">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-xs font-medium text-slate-300">
+          <span className="text-xs font-medium text-sl-primary">
             {isEn ? 'Target Audience' : 'Zielgruppe & Einladungen'}
           </span>
-          <span className="text-xs font-mono tabular-nums text-sky-400">
+          <span className="text-xs font-mono tabular-nums text-sl-accent">
             {previewInvitedCount} {isEn ? 'members invited' : 'Personen eingeladen'}
           </span>
         </div>
 
-        <label className="flex items-center gap-2 text-sm text-white cursor-pointer">
+        <label className="flex items-center gap-2 text-sm text-sl-heading cursor-pointer">
           <input
             type="checkbox"
             checked={draft.targetAll}
             onChange={(e) => onDraftChange({ ...draft, targetAll: e.target.checked })}
-            className="rounded border-slate-700 bg-[#0b0e11]"
+            className="rounded border-sl-border-strong bg-sl-canvas"
           />
           <span>
             {isEn ? 'Invite entire active team' : 'Gesamtes aktives Team einladen'}
@@ -272,9 +272,9 @@ function EventFormFields({
         </label>
 
         {!draft.targetAll && (
-          <div className="space-y-3 rounded-lg border border-slate-800 bg-[#0b0e11] p-3.5">
+          <div className="space-y-3 rounded-lg border border-sl-border bg-sl-canvas p-3.5">
             <div className="space-y-1.5">
-              <span className="text-xs text-slate-400">Core-Units</span>
+              <span className="text-xs text-sl-muted">Core-Units</span>
               <div className="flex flex-wrap gap-1.5">
                 {(['OFFENSE', 'DEFENSE', 'SPECIAL_TEAMS'] as SpielerUnit[]).map((unit) => {
                   const active = draft.targetUnits.includes(unit);
@@ -285,8 +285,8 @@ function EventFormFields({
                       onClick={() => toggleArrayField('targetUnits', unit)}
                       className={`px-2.5 py-1.5 rounded-md border text-xs font-medium whitespace-nowrap ${
                         active
-                          ? 'bg-sky-600 border-sky-500 text-white'
-                          : 'border-slate-800 bg-[#12171d] text-slate-300 hover:border-slate-700'
+                          ? 'bg-sl-accent border-sl-accent text-sl-accent-contrast'
+                          : 'border-sl-border bg-sl-surface text-sl-primary hover:border-sl-border-strong'
                       }`}
                     >
                       {unit}
@@ -297,7 +297,7 @@ function EventFormFields({
             </div>
 
             <div className="space-y-1.5">
-              <span className="text-xs text-slate-400">
+              <span className="text-xs text-sl-muted">
                 {isEn ? 'Specific Positions' : 'Spezifische Positionen'}
               </span>
               <div className="flex flex-wrap gap-1.5">
@@ -310,8 +310,8 @@ function EventFormFields({
                       onClick={() => toggleArrayField('targetPositions', pos)}
                       className={`px-2 py-1 rounded-md border text-xs font-mono whitespace-nowrap ${
                         active
-                          ? 'bg-sky-600 border-sky-500 text-white'
-                          : 'border-slate-800 bg-[#12171d] text-slate-300 hover:border-slate-700'
+                          ? 'bg-sl-accent border-sl-accent text-sl-accent-contrast'
+                          : 'border-sl-border bg-sl-surface text-sl-primary hover:border-sl-border-strong'
                       }`}
                     >
                       {pos}
@@ -322,7 +322,7 @@ function EventFormFields({
             </div>
 
             <div className="space-y-1.5">
-              <span className="text-xs text-slate-400">{isEn ? 'Roles' : 'Team-Rollen'}</span>
+              <span className="text-xs text-sl-muted">{isEn ? 'Roles' : 'Team-Rollen'}</span>
               <div className="flex flex-wrap gap-1.5">
                 {(['TEAM_ADMIN', 'COACH', 'PLAYER'] as TeamRolle[]).map((r) => {
                   const active = draft.targetRoles.includes(r);
@@ -333,8 +333,8 @@ function EventFormFields({
                       onClick={() => toggleArrayField('targetRoles', r)}
                       className={`px-2.5 py-1.5 rounded-md border text-xs font-medium whitespace-nowrap ${
                         active
-                          ? 'bg-sky-600 border-sky-500 text-white'
-                          : 'border-slate-800 bg-[#12171d] text-slate-300 hover:border-slate-700'
+                          ? 'bg-sl-accent border-sl-accent text-sl-accent-contrast'
+                          : 'border-sl-border bg-sl-surface text-sl-primary hover:border-sl-border-strong'
                       }`}
                     >
                       {r}
@@ -346,7 +346,7 @@ function EventFormFields({
 
             {roster.length > 0 && (
               <div className="space-y-1.5">
-                <span className="text-xs text-slate-400">
+                <span className="text-xs text-sl-muted">
                   {isEn
                     ? 'Individual Members (optional)'
                     : 'Einzelpersonen (optional, z. B. Captains)'}
@@ -357,7 +357,7 @@ function EventFormFields({
                     .map((m) => (
                       <label
                         key={m.userUuid}
-                        className="flex items-center gap-2 px-2 py-1 rounded border border-slate-800/80 text-xs text-slate-200 cursor-pointer hover:bg-slate-800/40"
+                        className="flex items-center gap-2 px-2 py-1 rounded border border-sl-border text-xs text-sl-primary cursor-pointer hover:bg-sl-elevated/50"
                       >
                         <input
                           type="checkbox"
@@ -369,7 +369,7 @@ function EventFormFields({
                           {m.vollerName}
                         </span>
                         {m.position && (
-                          <span className="ml-auto text-slate-500 font-mono">{m.position}</span>
+                          <span className="ml-auto text-sl-subtle font-mono">{m.position}</span>
                         )}
                       </label>
                     ))}
@@ -381,8 +381,8 @@ function EventFormFields({
       </div>
 
       {/* Frist-Override */}
-      <div className="pt-3 border-t border-slate-800 space-y-2">
-        <label className="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
+      <div className="pt-3 border-t border-sl-border space-y-2">
+        <label className="flex items-center gap-2 text-xs text-sl-primary cursor-pointer">
           <input
             type="checkbox"
             checked={draft.useCutoffOverride}
@@ -404,9 +404,9 @@ function EventFormFields({
               step="0.5"
               value={draft.cutoffHours}
               onChange={(e) => onDraftChange({ ...draft, cutoffHours: e.target.value })}
-              className="w-28 px-3 py-1.5 text-sm font-mono tabular-nums rounded-lg border border-slate-800 bg-[#0b0e11] text-white"
+              className="w-28 px-3 py-1.5 text-sm font-mono tabular-nums rounded-lg border border-sl-border bg-sl-canvas text-sl-heading"
             />
-            <span className="text-xs text-slate-400">
+            <span className="text-xs text-sl-muted">
               {isEn ? 'hours before start' : 'Stunden vor Terminbeginn'}
             </span>
           </div>
@@ -415,8 +415,8 @@ function EventFormFields({
 
       {/* Initiale Link-Anhänge */}
       {!isEditing && (
-        <div className="pt-3 border-t border-slate-800 space-y-2">
-          <span className="block text-xs font-medium text-slate-300">
+        <div className="pt-3 border-t border-sl-border space-y-2">
+          <span className="block text-xs font-medium text-sl-primary">
             {isEn ? 'Initial Web Links (optional)' : 'Links anhängen (optional)'}
           </span>
           {draft.attachments.length > 0 && (
@@ -424,10 +424,10 @@ function EventFormFields({
               {draft.attachments.map((att, idx) => (
                 <li
                   key={`${att.url}-${idx}`}
-                  className="flex items-center justify-between gap-2 px-3 py-1.5 rounded bg-[#0b0e11] border border-slate-800 text-xs text-slate-200"
+                  className="flex items-center justify-between gap-2 px-3 py-1.5 rounded bg-sl-canvas border border-sl-border text-xs text-sl-primary"
                 >
                   <span className="truncate">
-                    {att.title} · <span className="text-slate-400">{att.url}</span>
+                    {att.title} · <span className="text-sl-muted">{att.url}</span>
                   </span>
                   <button
                     type="button"
@@ -437,7 +437,7 @@ function EventFormFields({
                         attachments: draft.attachments.filter((_, i) => i !== idx),
                       })
                     }
-                    className="text-slate-400 hover:text-red-400"
+                    className="text-sl-muted hover:text-sl-danger-text"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -451,19 +451,19 @@ function EventFormFields({
               value={linkTitle}
               onChange={(e) => setLinkTitle(e.target.value)}
               placeholder={isEn ? 'Link title' : 'Link-Titel'}
-              className="px-3 py-1.5 text-xs rounded-lg border border-slate-800 bg-[#0b0e11] text-white"
+              className="px-3 py-1.5 text-xs rounded-lg border border-sl-border bg-sl-canvas text-sl-heading placeholder:text-sl-subtle"
             />
             <input
               type="url"
               value={linkUrl}
               onChange={(e) => setLinkUrl(e.target.value)}
               placeholder="https://..."
-              className="px-3 py-1.5 text-xs rounded-lg border border-slate-800 bg-[#0b0e11] text-white"
+              className="px-3 py-1.5 text-xs rounded-lg border border-sl-border bg-sl-canvas text-sl-heading placeholder:text-sl-subtle"
             />
             <button
               type="button"
               onClick={handleAddInitialLink}
-              className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-white inline-flex items-center gap-1 whitespace-nowrap"
+              className="px-3 py-1.5 rounded-lg border border-sl-border bg-sl-elevated hover:border-sl-border-strong text-xs text-sl-heading inline-flex items-center gap-1 whitespace-nowrap"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>{isEn ? 'Add' : 'Hinzufügen'}</span>
@@ -584,14 +584,14 @@ export function EventFormModal({
       <div
         role="dialog"
         aria-modal="true"
-        className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-3 sm:p-6"
+        className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-3 sm:p-6"
       >
         <form
           onSubmit={handleSubmit}
-          className="w-full max-w-2xl max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-3rem)] flex flex-col rounded-xl border border-slate-800 bg-[#12171d] overflow-hidden shadow-2xl"
+          className="w-full max-w-2xl max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-3rem)] flex flex-col rounded-xl border border-sl-border bg-sl-surface overflow-hidden shadow-2xl"
         >
-          <div className="shrink-0 flex items-center justify-between gap-3 px-5 py-4 border-b border-slate-800 bg-[#12171d]">
-            <h2 className="text-base font-semibold text-white truncate">
+          <div className="shrink-0 flex items-center justify-between gap-3 px-5 py-4 border-b border-sl-border bg-sl-surface">
+            <h2 className="text-base font-semibold text-sl-heading truncate">
               {isEditing
                 ? isEn
                   ? 'Edit Event'
@@ -604,7 +604,7 @@ export function EventFormModal({
               <button
                 type="button"
                 onClick={onPopOutToTab}
-                className="px-2.5 py-1.5 rounded-lg border border-slate-700 hover:bg-slate-800 text-xs font-medium text-slate-200 inline-flex items-center gap-1.5 whitespace-nowrap"
+                className="px-2.5 py-1.5 rounded-lg border border-sl-border-strong hover:bg-sl-elevated text-xs font-medium text-sl-primary hover:text-sl-heading inline-flex items-center gap-1.5 whitespace-nowrap"
               >
                 <PanelTop className="w-3.5 h-3.5" />
                 <span>{isEn ? 'Open in Tab' : 'In Tab öffnen'}</span>
@@ -613,7 +613,7 @@ export function EventFormModal({
                 type="button"
                 onClick={onClose}
                 aria-label={isEn ? 'Close' : 'Schließen'}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+                className="p-1.5 rounded-lg text-sl-muted hover:text-sl-heading hover:bg-sl-elevated"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -627,21 +627,21 @@ export function EventFormModal({
               roster={roster}
               locale={locale}
             />
-            {error && <p className="text-xs text-red-400">{error}</p>}
+            {error && <p className="text-xs text-sl-danger-text">{error}</p>}
           </div>
 
-          <div className="shrink-0 flex items-center justify-end gap-2 px-5 py-3.5 border-t border-slate-800 bg-[#0b0e11]">
+          <div className="shrink-0 flex items-center justify-end gap-2 px-5 py-3.5 border-t border-sl-border bg-sl-canvas">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-slate-800 text-xs font-medium text-slate-300 hover:text-white"
+              className="px-4 py-2 rounded-lg border border-sl-border text-xs font-medium text-sl-primary hover:text-sl-heading hover:border-sl-border-strong"
             >
               {isEn ? 'Cancel' : 'Abbrechen'}
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-xs font-medium text-white disabled:opacity-50"
+              className="px-4 py-2 rounded-lg bg-sl-accent hover:bg-sl-accent-hover text-xs font-medium text-sl-accent-contrast disabled:opacity-50"
             >
               {saving
                 ? isEn
@@ -712,10 +712,10 @@ export function EventFormTabView({
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-xl border border-slate-800 bg-[#12171d] p-6 space-y-5"
+      className="rounded-xl border border-sl-border bg-sl-surface p-6 space-y-5"
     >
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
-        <h2 className="text-base font-semibold text-white">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-sl-border pb-3">
+        <h2 className="text-base font-semibold text-sl-heading">
           {isEditing
             ? isEn
               ? 'Edit Event'
@@ -727,7 +727,7 @@ export function EventFormTabView({
         <button
           type="button"
           onClick={onPopInOverlay}
-          className="px-3 py-1.5 rounded-lg border border-slate-700 hover:bg-slate-800 text-xs font-medium text-slate-200 inline-flex items-center gap-1.5 whitespace-nowrap"
+          className="px-3 py-1.5 rounded-lg border border-sl-border-strong hover:bg-sl-elevated text-xs font-medium text-sl-primary hover:text-sl-heading inline-flex items-center gap-1.5 whitespace-nowrap"
         >
           <Minimize2 className="w-3.5 h-3.5" />
           <span>{isEn ? 'Switch to Overlay' : 'Als Overlay öffnen'}</span>
@@ -741,20 +741,20 @@ export function EventFormTabView({
         locale={locale}
       />
 
-      {error && <p className="text-xs text-red-400">{error}</p>}
+      {error && <p className="text-xs text-sl-danger-text">{error}</p>}
 
-      <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+      <div className="flex items-center justify-end gap-2 pt-3 border-t border-sl-border">
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 rounded-lg border border-slate-800 text-xs font-medium text-slate-300 hover:text-white"
+          className="px-4 py-2 rounded-lg border border-sl-border text-xs font-medium text-sl-primary hover:text-sl-heading hover:border-sl-border-strong"
         >
           {isEn ? 'Cancel' : 'Abbrechen'}
         </button>
         <button
           type="submit"
           disabled={saving}
-          className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-xs font-medium text-white disabled:opacity-50"
+          className="px-4 py-2 rounded-lg bg-sl-accent hover:bg-sl-accent-hover text-xs font-medium text-sl-accent-contrast disabled:opacity-50"
         >
           {saving
             ? isEn

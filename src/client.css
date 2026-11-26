@@ -2,6 +2,27 @@
 
 @import "tailwindcss/theme" layer(theme);
 
+@theme inline {
+  --color-sl-canvas: var(--sl-bg-canvas, #0b0e11);
+  --color-sl-topbar: var(--sl-bg-topbar, #0f1318);
+  --color-sl-surface: var(--sl-bg-surface, #13171d);
+  --color-sl-elevated: var(--sl-bg-elevated, #1e2530);
+  --color-sl-border: var(--sl-border, #232933);
+  --color-sl-border-strong: var(--sl-border-strong, #36404f);
+  --color-sl-heading: var(--sl-text-heading, #ffffff);
+  --color-sl-primary: var(--sl-text-primary, #e6edf3);
+  --color-sl-muted: var(--sl-text-muted, #8b949e);
+  --color-sl-subtle: var(--sl-text-subtle, #6e7681);
+  --color-sl-accent: var(--sl-accent, #f59e0b);
+  --color-sl-accent-hover: var(--sl-accent-hover, #fbbf24);
+  --color-sl-accent-contrast: var(--sl-accent-contrast, #0b0e11);
+  --color-sl-danger: var(--sl-danger, #dc2626);
+  --color-sl-danger-text: var(--sl-danger-text, #fca5a5);
+  --color-sl-success: var(--sl-success, #16a34a);
+  --color-sl-success-text: var(--sl-success-text, #86efac);
+  --color-sl-warning-text: var(--sl-warning-text, #fde68a);
+}
+
 @layer utilities {
   .sl-attendance-scope {
     @import "tailwindcss/utilities";

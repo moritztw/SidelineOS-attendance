@@ -65,21 +65,46 @@ test('plugin.manifest.json erfüllt alle Validierungsregeln von SidelineOS-Core'
   );
 });
 
-test('dist/client.js ist ein gültiges ESM-Bundle mit Core-ImportMap-Externals', async () => {
+test('dist/client.js ist ein gültiges ESM-Bundle mit Core-ImportMap-Externals und semantischen sl-Tokens', async () => {
   const bundleCode = await fs.readFile(path.join(ROOT_DIR, 'dist/client.js'), 'utf8');
   assert.match(bundleCode, /from\s+["']@sidelineos\/plugin-sdk["']/);
   assert.match(bundleCode, /from\s+["']react\/jsx-runtime["']/);
   assert.doesNotMatch(bundleCode, /dangerouslySetInnerHTML/);
+  assert.doesNotMatch(bundleCode, /\b(?:bg|text|border|divide)-slate-\d+/);
+  assert.doesNotMatch(bundleCode, /\b(?:bg|text|border)-(?:sky|emerald|amber|red)-\d+/);
+  assert.doesNotMatch(bundleCode, /bg-\[#(?:0b0e11|12171d)\]/i);
+  assert.match(bundleCode, /\bbg-sl-surface\b/);
+  assert.match(bundleCode, /\bbg-sl-canvas\b/);
+  assert.match(bundleCode, /\bborder-sl-border\b/);
+  assert.match(bundleCode, /\btext-sl-heading\b/);
+  assert.match(bundleCode, /\btext-sl-primary\b/);
+  assert.match(bundleCode, /\btext-sl-muted\b/);
+  assert.match(bundleCode, /\bbg-sl-accent\b/);
+  assert.match(bundleCode, /\btext-sl-accent-contrast\b/);
   assert.match(bundleCode, /export\s*\{[\s\S]*default[\s\S]*\}/);
 });
 
-test('dist/client.css kapselt alle Layout-, Theme- und Scroll-Klassen strikt in .sl-attendance-scope', async () => {
+test('src/sdk.d.ts bildet die SDK-Erweiterungen aus Core Issue #13 (PR1–PR3) ab', async () => {
+  const sdkTypes = await fs.readFile(path.join(ROOT_DIR, 'src/sdk.d.ts'), 'utf8');
+  assert.match(sdkTypes, /hideHubTile\?:\s*boolean/);
+  assert.match(sdkTypes, /themes\?:\s*PluginThemePreset\[\]/);
+  assert.match(sdkTypes, /preferredTheme\?:\s*string/);
+  assert.match(sdkTypes, /interface PluginProviderKontext/);
+  assert.match(sdkTypes, /interface PluginProviderProps/);
+  assert.match(sdkTypes, /SIDELINE_CSS_TOKENS/);
+  assert.match(sdkTypes, /deleteObject\(objectPath:\s*string\):\s*Promise<void>/);
+});
+
+test('dist/client.css kapselt alle Layout-, Theme- und Scroll-Klassen strikt in .sl-attendance-scope mit Core-CSS-Variablen', async () => {
   const cssCode = await fs.readFile(path.join(ROOT_DIR, 'dist/client.css'), 'utf8');
   assert.doesNotMatch(cssCode, /:root\b/);
   assert.doesNotMatch(cssCode, /:host\b/);
   assert.match(cssCode, /\.sl-attendance-scope\s+\.overflow-y-auto/);
   assert.match(cssCode, /\.sl-attendance-scope\s+\.fixed/);
   assert.match(cssCode, /\.sl-attendance-scope\s+\.inset-0/);
+  assert.match(cssCode, /var\(--sl-bg-surface/);
+  assert.match(cssCode, /var\(--sl-bg-canvas/);
+  assert.match(cssCode, /var\(--sl-accent/);
   assert.match(cssCode, /@layer utilities/);
 });
 

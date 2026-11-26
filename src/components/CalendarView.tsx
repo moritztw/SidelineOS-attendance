@@ -51,7 +51,7 @@ export function CalendarView({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-1 p-1 rounded-lg bg-[#12171d] border border-slate-800">
+        <div className="flex flex-wrap items-center gap-1 p-1 rounded-lg bg-sl-surface border border-sl-border">
           {(['UPCOMING', 'ALL', 'PAST'] as const).map((scope) => (
             <button
               key={scope}
@@ -59,8 +59,8 @@ export function CalendarView({
               onClick={() => setTimeScope(scope)}
               className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
                 timeScope === scope
-                  ? 'bg-slate-800 text-white'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-sl-elevated text-sl-heading'
+                  : 'text-sl-muted hover:text-sl-heading'
               }`}
             >
               {scope === 'UPCOMING'
@@ -82,7 +82,7 @@ export function CalendarView({
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value as EventCategory | 'ALL')}
-            className="px-3 py-2 text-xs rounded-lg border border-slate-800 bg-[#12171d] text-white"
+            className="px-3 py-2 text-xs rounded-lg border border-sl-border bg-sl-surface text-sl-heading"
           >
             <option value="ALL">{isEn ? 'All Categories' : 'Alle Kategorien'}</option>
             <option value="TRAINING">{isEn ? 'Practice' : 'Training'}</option>
@@ -91,7 +91,7 @@ export function CalendarView({
             <option value="OTHER">{isEn ? 'Other' : 'Sonstiges'}</option>
           </select>
 
-          <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-800 bg-[#12171d] text-xs text-slate-300 cursor-pointer whitespace-nowrap">
+          <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-sl-border bg-sl-surface text-xs text-sl-primary cursor-pointer whitespace-nowrap">
             <input
               type="checkbox"
               checked={onlyInvited}
@@ -103,23 +103,23 @@ export function CalendarView({
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded-xl border border-slate-800 bg-[#12171d] p-8 text-center space-y-3">
-          <CalendarDays className="w-8 h-8 text-slate-500 mx-auto" />
-          <p className="text-sm font-medium text-white">
+        <div className="rounded-xl border border-sl-border bg-sl-surface p-8 text-center space-y-3">
+          <CalendarDays className="w-8 h-8 text-sl-subtle mx-auto" />
+          <p className="text-sm font-medium text-sl-heading">
             {isEn ? 'No events match your filters.' : 'Keine Termine für diesen Filter gefunden.'}
           </p>
           {isStaff && (
             <button
               type="button"
               onClick={onCreateEvent}
-              className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-xs font-medium text-white"
+              className="px-4 py-2 rounded-lg bg-sl-accent hover:bg-sl-accent-hover text-xs font-medium text-sl-accent-contrast"
             >
               {isEn ? 'Create First Event' : 'Ersten Termin anlegen'}
             </button>
           )}
         </div>
       ) : (
-        <ul className="divide-y divide-slate-800 rounded-xl border border-slate-800 bg-[#12171d] overflow-hidden">
+        <ul className="divide-y divide-sl-border rounded-xl border border-sl-border bg-sl-surface overflow-hidden">
           {filtered.map((ev) => {
             const myStatus = ev.myResponse?.status ?? null;
             const statusMeta = myStatus ? STATUS_META[myStatus] : null;
@@ -129,14 +129,14 @@ export function CalendarView({
               <li
                 key={ev.id}
                 className={`p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4 transition-colors ${
-                  muted ? 'bg-[#0b0e11]/60 opacity-70' : 'hover:bg-slate-900/40'
+                  muted ? 'bg-sl-canvas/60 opacity-70' : 'hover:bg-sl-elevated/40'
                 }`}
               >
                 <div className="min-w-0 space-y-1">
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-slate-400">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-sl-muted">
                     <span>{formatCategoryLabel(ev.category, locale)}</span>
                     <span aria-hidden="true">·</span>
-                    <span className="font-mono tabular-nums text-slate-300">
+                    <span className="font-mono tabular-nums text-sl-primary">
                       {formatEventDateRange(ev.startsAt, ev.endsAt, locale)}
                     </span>
                     {ev.location && (
@@ -148,7 +148,7 @@ export function CalendarView({
                     {ev.attachmentCount > 0 && (
                       <>
                         <span aria-hidden="true">·</span>
-                        <span className="inline-flex items-center gap-1 font-mono tabular-nums text-slate-300">
+                        <span className="inline-flex items-center gap-1 font-mono tabular-nums text-sl-primary">
                           <Paperclip className="w-3 h-3" />
                           {ev.attachmentCount}
                         </span>
@@ -159,12 +159,12 @@ export function CalendarView({
                   <button
                     type="button"
                     onClick={() => onSelectEvent(ev.id)}
-                    className="text-left text-base font-semibold text-white hover:text-sky-400 transition-colors block truncate max-w-full"
+                    className="text-left text-base font-semibold text-sl-heading hover:text-sl-accent transition-colors block truncate max-w-full"
                   >
                     {ev.title}
                   </button>
 
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-slate-400">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-sl-muted">
                     <span>{formatTargetSummary(ev, locale)}</span>
                     <span aria-hidden="true">·</span>
                     <span className="font-mono tabular-nums">
@@ -174,7 +174,7 @@ export function CalendarView({
                     {muted && (
                       <>
                         <span aria-hidden="true">·</span>
-                        <span className="inline-flex items-center gap-1 text-slate-400">
+                        <span className="inline-flex items-center gap-1 text-sl-muted">
                           <Lock className="w-3 h-3" />
                           {isEn ? 'Not invited / Positional' : 'Nicht eingeladen / Nur Ansicht'}
                         </span>
@@ -200,7 +200,7 @@ export function CalendarView({
                               className={`px-2.5 py-1.5 rounded-md border text-xs font-medium inline-flex items-center gap-1 whitespace-nowrap disabled:opacity-40 ${
                                 active
                                   ? m.activeClass
-                                  : 'border-slate-800 bg-[#0b0e11] text-slate-300 hover:border-slate-700'
+                                  : 'border-sl-border bg-sl-canvas text-sl-primary hover:border-sl-border-strong'
                               }`}
                             >
                               <m.Icon className="w-3.5 h-3.5" />
@@ -215,7 +215,7 @@ export function CalendarView({
                   )}
 
                   {!ev.isInvited && statusMeta === null && (
-                    <span className="text-xs text-slate-500 px-2">
+                    <span className="text-xs text-sl-subtle px-2">
                       {isEn ? 'Read only' : 'Keine Antwort'}
                     </span>
                   )}
@@ -223,7 +223,7 @@ export function CalendarView({
                   <button
                     type="button"
                     onClick={() => onSelectEvent(ev.id)}
-                    className="px-2.5 py-1.5 rounded-md border border-slate-800 hover:border-slate-700 text-xs text-slate-300 hover:text-white inline-flex items-center gap-1 whitespace-nowrap"
+                    className="px-2.5 py-1.5 rounded-md border border-sl-border hover:border-sl-border-strong text-xs text-sl-primary hover:text-sl-heading inline-flex items-center gap-1 whitespace-nowrap"
                   >
                     <span>{isEn ? 'Open' : 'Details'}</span>
                     <ChevronRight className="w-3.5 h-3.5" />

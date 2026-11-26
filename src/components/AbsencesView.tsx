@@ -74,12 +74,12 @@ export function AbsencesView({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-xl border border-slate-800 bg-[#12171d] p-5 space-y-4">
+      <section className="rounded-xl border border-sl-border bg-sl-surface p-5 space-y-4">
         <header className="space-y-1">
-          <h2 className="text-base font-semibold text-white">
+          <h2 className="text-base font-semibold text-sl-heading">
             {isEn ? 'Register Long-Term Absence' : 'Langzeitabwesenheit hinterlegen'}
           </h2>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-sl-muted">
             {isEn
               ? 'Upcoming invited events in this period are automatically set to Absent unless manually overridden.'
               : 'Anstehende eingeladene Termine in diesem Zeitraum werden automatisch auf „Abwesend“ gesetzt, sofern kein manueller Override erfolgt.'}
@@ -91,7 +91,7 @@ export function AbsencesView({
             <select
               value={targetUserUuid}
               onChange={(e) => setTargetUserUuid(e.target.value)}
-              className="px-3 py-2 text-xs rounded-lg border border-slate-800 bg-[#0b0e11] text-white"
+              className="px-3 py-2 text-xs rounded-lg border border-sl-border bg-sl-canvas text-sl-heading"
             >
               <option value={currentUserUuid}>{isEn ? 'Myself' : 'Für mich selbst'}</option>
               {roster
@@ -107,7 +107,7 @@ export function AbsencesView({
           <select
             value={reasonType}
             onChange={(e) => setReasonType(e.target.value as AbsenceReasonType)}
-            className="px-3 py-2 text-xs rounded-lg border border-slate-800 bg-[#0b0e11] text-white"
+            className="px-3 py-2 text-xs rounded-lg border border-sl-border bg-sl-canvas text-sl-heading"
           >
             {(['VACATION', 'INJURY', 'PERSONAL'] as AbsenceReasonType[]).map((type) => (
               <option key={type} value={type}>
@@ -122,7 +122,7 @@ export function AbsencesView({
             value={startsOn}
             onChange={(e) => setStartsOn(e.target.value)}
             aria-label={isEn ? 'Start date' : 'Startdatum'}
-            className="px-3 py-2 text-xs font-mono rounded-lg border border-slate-800 bg-[#0b0e11] text-white"
+            className="px-3 py-2 text-xs font-mono rounded-lg border border-sl-border bg-sl-canvas text-sl-heading"
           />
 
           <input
@@ -131,7 +131,7 @@ export function AbsencesView({
             value={endsOn}
             onChange={(e) => setEndsOn(e.target.value)}
             aria-label={isEn ? 'End date' : 'Enddatum'}
-            className="px-3 py-2 text-xs font-mono rounded-lg border border-slate-800 bg-[#0b0e11] text-white"
+            className="px-3 py-2 text-xs font-mono rounded-lg border border-sl-border bg-sl-canvas text-sl-heading"
           />
 
           <input
@@ -139,7 +139,7 @@ export function AbsencesView({
             value={reasonText}
             onChange={(e) => setReasonText(e.target.value)}
             placeholder={isEn ? 'Reason / Note' : 'Begründung (z. B. Sommerurlaub)'}
-            className={`px-3 py-2 text-xs rounded-lg border border-slate-800 bg-[#0b0e11] text-white ${
+            className={`px-3 py-2 text-xs rounded-lg border border-sl-border bg-sl-canvas text-sl-heading placeholder:text-sl-subtle focus:outline-none focus:border-sl-accent ${
               isStaff ? 'lg:col-span-4' : 'sm:col-span-2 lg:col-span-1'
             }`}
           />
@@ -147,34 +147,34 @@ export function AbsencesView({
           <button
             type="submit"
             disabled={busy || !startsOn || !endsOn}
-            className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-xs font-medium text-white inline-flex items-center justify-center gap-1.5 whitespace-nowrap disabled:opacity-45"
+            className="px-4 py-2 rounded-lg bg-sl-accent hover:bg-sl-accent-hover text-xs font-medium text-sl-accent-contrast inline-flex items-center justify-center gap-1.5 whitespace-nowrap disabled:opacity-45"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>{isEn ? 'Save Absence' : 'Zeitraum eintragen'}</span>
           </button>
         </form>
 
-        {notice && <p className="text-xs text-emerald-400">{notice}</p>}
-        {error && <p className="text-xs text-red-400">{error}</p>}
+        {notice && <p className="text-xs text-sl-success-text">{notice}</p>}
+        {error && <p className="text-xs text-sl-danger-text">{error}</p>}
       </section>
 
-      <section className="rounded-xl border border-slate-800 bg-[#12171d] overflow-hidden">
-        <div className="px-5 py-3.5 border-b border-slate-800 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-white">
+      <section className="rounded-xl border border-sl-border bg-sl-surface overflow-hidden">
+        <div className="px-5 py-3.5 border-b border-sl-border flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-sl-heading">
             {isEn ? 'Registered Absences' : 'Hinterlegte Abwesenheitszeiträume'}
           </h3>
-          <span className="text-xs font-mono tabular-nums text-slate-400">{absences.length}</span>
+          <span className="text-xs font-mono tabular-nums text-sl-muted">{absences.length}</span>
         </div>
 
         {absences.length === 0 ? (
           <div className="p-8 text-center space-y-2">
-            <CalendarOff className="w-7 h-7 text-slate-500 mx-auto" />
-            <p className="text-xs text-slate-400">
+            <CalendarOff className="w-7 h-7 text-sl-subtle mx-auto" />
+            <p className="text-xs text-sl-muted">
               {isEn ? 'No absences recorded yet.' : 'Aktuell sind keine Abwesenheiten eingetragen.'}
             </p>
           </div>
         ) : (
-          <ul className="divide-y divide-slate-800">
+          <ul className="divide-y divide-sl-border">
             {absences.map((abs) => {
               const ownerName = memberNameMap.get(abs.userUuid) ?? abs.userUuid;
               const label = isEn
@@ -185,17 +185,17 @@ export function AbsencesView({
               return (
                 <li key={abs.id} className="px-5 py-3.5 flex items-center justify-between gap-4">
                   <div className="space-y-0.5 min-w-0">
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-slate-400">
-                      <span className="font-medium text-slate-200">{ownerName}</span>
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-sl-muted">
+                      <span className="font-medium text-sl-heading">{ownerName}</span>
                       <span aria-hidden="true">·</span>
                       <span>{label}</span>
                       <span aria-hidden="true">·</span>
-                      <span className="font-mono tabular-nums text-slate-300">
+                      <span className="font-mono tabular-nums text-sl-primary">
                         {abs.startsOn} → {abs.endsOn}
                       </span>
                     </div>
                     {abs.reasonText && (
-                      <p className="text-xs text-slate-400 truncate">{abs.reasonText}</p>
+                      <p className="text-xs text-sl-muted truncate">{abs.reasonText}</p>
                     )}
                   </div>
 
@@ -204,7 +204,7 @@ export function AbsencesView({
                       type="button"
                       onClick={() => onDeleteAbsence(abs.id)}
                       aria-label={isEn ? 'Delete absence' : 'Abwesenheit löschen'}
-                      className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-slate-800/60 shrink-0"
+                      className="p-2 rounded-lg text-sl-muted hover:text-sl-danger-text hover:bg-sl-elevated shrink-0"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

@@ -86,13 +86,13 @@ export function TeamSettingsPanel({ ctx }: { ctx: PluginSettingsKontext }) {
     <div className="sl-attendance-scope">
       <section
         id="modul-attendance-team-config"
-        className="rounded-xl border border-slate-800 bg-[#12171d] p-6 space-y-5"
+        className="rounded-xl border border-sl-border bg-sl-surface p-6 space-y-5"
       >
-      <header className="space-y-1 border-b border-slate-800 pb-3">
-        <h3 className="text-base font-semibold text-white">
+      <header className="space-y-1 border-b border-sl-border pb-3">
+        <h3 className="text-base font-semibold text-sl-heading">
           {isEn ? 'Attendance, Deadlines & Check-In' : 'Anwesenheit, Fristen & Check-In'}
         </h3>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-sl-muted">
           {isEn
             ? 'Configure team-wide visibility, response deadlines, and live check-in.'
             : 'Steuert Sichtbarkeit, Rückmeldefristen, Datenschutz und Live-Check-In für dieses Team.'}
@@ -100,11 +100,11 @@ export function TeamSettingsPanel({ ctx }: { ctx: PluginSettingsKontext }) {
       </header>
 
       {loading ? (
-        <p className="text-xs text-slate-400">{isEn ? 'Loading…' : 'Wird geladen…'}</p>
+        <p className="text-xs text-sl-muted">{isEn ? 'Loading…' : 'Wird geladen…'}</p>
       ) : (
         <form onSubmit={handleSave} className="space-y-4">
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-slate-200">
+            <label className="block text-xs font-medium text-sl-primary">
               {isEn
                 ? 'Visibility of events for non-invited players'
                 : 'Sichtbarkeit von Terminen für nicht-eingeladene Spieler'}
@@ -112,7 +112,7 @@ export function TeamSettingsPanel({ ctx }: { ctx: PluginSettingsKontext }) {
             <select
               value={nonInvitedVisibility}
               onChange={(e) => setNonInvitedVisibility(e.target.value as NonInvitedVisibility)}
-              className="w-full px-3 py-2 text-xs rounded-lg border border-slate-800 bg-[#0b0e11] text-white"
+              className="w-full px-3 py-2 text-xs rounded-lg border border-sl-border bg-sl-canvas text-sl-heading"
             >
               <option value="TRANSPARENT">
                 {isEn
@@ -128,7 +128,7 @@ export function TeamSettingsPanel({ ctx }: { ctx: PluginSettingsKontext }) {
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-slate-200">
+            <label className="block text-xs font-medium text-sl-primary">
               {isEn
                 ? 'Visibility of responses & cancellation reasons'
                 : 'Sichtbarkeit von Rückmeldungen & Abmeldegründen'}
@@ -136,7 +136,7 @@ export function TeamSettingsPanel({ ctx }: { ctx: PluginSettingsKontext }) {
             <select
               value={responseVisibility}
               onChange={(e) => setResponseVisibility(e.target.value as ResponseVisibility)}
-              className="w-full px-3 py-2 text-xs rounded-lg border border-slate-800 bg-[#0b0e11] text-white"
+              className="w-full px-3 py-2 text-xs rounded-lg border border-sl-border bg-sl-canvas text-sl-heading"
             >
               <option value="TEAM">
                 {isEn ? 'Visible to entire team' : 'Für das gesamte Team einsehbar'}
@@ -149,7 +149,7 @@ export function TeamSettingsPanel({ ctx }: { ctx: PluginSettingsKontext }) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-slate-200">
+              <label className="block text-xs font-medium text-sl-primary">
                 {isEn
                   ? 'Default response deadline (hours before start)'
                   : 'Standard-Rückmeldefrist (Stunden vor Start)'}
@@ -160,12 +160,12 @@ export function TeamSettingsPanel({ ctx }: { ctx: PluginSettingsKontext }) {
                 step="0.5"
                 value={cutoffHours}
                 onChange={(e) => setCutoffHours(e.target.value)}
-                className="w-full px-3 py-2 text-xs font-mono tabular-nums rounded-lg border border-slate-800 bg-[#0b0e11] text-white"
+                className="w-full px-3 py-2 text-xs font-mono tabular-nums rounded-lg border border-sl-border bg-sl-canvas text-sl-heading"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-slate-200">
+              <label className="block text-xs font-medium text-sl-primary">
                 {isEn
                   ? 'Automatic reminder window (hours before deadline)'
                   : 'Erinnerungs-Vorlauf für Core-Cron (Stunden vor Frist)'}
@@ -176,12 +176,12 @@ export function TeamSettingsPanel({ ctx }: { ctx: PluginSettingsKontext }) {
                 step="1"
                 value={reminderHoursBefore}
                 onChange={(e) => setReminderHoursBefore(e.target.value)}
-                className="w-full px-3 py-2 text-xs font-mono tabular-nums rounded-lg border border-slate-800 bg-[#0b0e11] text-white"
+                className="w-full px-3 py-2 text-xs font-mono tabular-nums rounded-lg border border-sl-border bg-sl-canvas text-sl-heading"
               />
             </div>
           </div>
 
-          <label className="flex items-center gap-2.5 text-xs text-slate-200 cursor-pointer pt-1">
+          <label className="flex items-center gap-2.5 text-xs text-sl-primary cursor-pointer pt-1">
             <input
               type="checkbox"
               checked={liveCheckinEnabled}
@@ -194,14 +194,14 @@ export function TeamSettingsPanel({ ctx }: { ctx: PluginSettingsKontext }) {
             </span>
           </label>
 
-          {message && <p className="text-xs text-emerald-400">{message}</p>}
-          {error && <p className="text-xs text-red-400">{error}</p>}
+          {message && <p className="text-xs text-sl-success-text">{message}</p>}
+          {error && <p className="text-xs text-sl-danger-text">{error}</p>}
 
-          <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-800">
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-sl-border">
             <button
               type="button"
               onClick={handleTestReminders}
-              className="px-3 py-2 rounded-lg border border-slate-700 hover:bg-slate-800 text-xs font-medium text-slate-200 inline-flex items-center gap-1.5"
+              className="px-3 py-2 rounded-lg border border-sl-border-strong hover:bg-sl-elevated text-xs font-medium text-sl-primary hover:text-sl-heading inline-flex items-center gap-1.5"
             >
               <Bell className="w-3.5 h-3.5" />
               <span>
@@ -212,7 +212,7 @@ export function TeamSettingsPanel({ ctx }: { ctx: PluginSettingsKontext }) {
             <button
               type="submit"
               disabled={saving}
-              className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-xs font-medium text-white inline-flex items-center gap-1.5 disabled:opacity-50"
+              className="px-4 py-2 rounded-lg bg-sl-accent hover:bg-sl-accent-hover text-xs font-medium text-sl-accent-contrast inline-flex items-center gap-1.5 disabled:opacity-50"
             >
               <Save className="w-3.5 h-3.5" />
               <span>{saving ? (isEn ? 'Saving…' : 'Speichert…') : isEn ? 'Save' : 'Speichern'}</span>
@@ -272,13 +272,13 @@ export function UserSettingsPanel({ ctx }: { ctx: PluginSettingsKontext }) {
     <div className="sl-attendance-scope">
       <section
         id="modul-attendance-user-prefs"
-        className="rounded-xl border border-slate-800 bg-[#12171d] p-6 space-y-4"
+        className="rounded-xl border border-sl-border bg-sl-surface p-6 space-y-4"
       >
-      <header className="space-y-1 border-b border-slate-800 pb-3">
-        <h3 className="text-base font-semibold text-white">
+      <header className="space-y-1 border-b border-sl-border pb-3">
+        <h3 className="text-base font-semibold text-sl-heading">
           {isEn ? 'Attendance & Reminders' : 'Anwesenheit & Erinnerungen'}
         </h3>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-sl-muted">
           {isEn
             ? 'Control which event notifications you receive via SidelineOS-Core.'
             : 'Lege fest, bei welchen Terminereignissen du über SidelineOS benachrichtigt wirst.'}
@@ -286,10 +286,10 @@ export function UserSettingsPanel({ ctx }: { ctx: PluginSettingsKontext }) {
       </header>
 
       {loading ? (
-        <p className="text-xs text-slate-400">{isEn ? 'Loading…' : 'Wird geladen…'}</p>
+        <p className="text-xs text-sl-muted">{isEn ? 'Loading…' : 'Wird geladen…'}</p>
       ) : (
         <form onSubmit={handleSave} className="space-y-3">
-          <label className="flex items-center gap-2.5 text-xs text-slate-200 cursor-pointer">
+          <label className="flex items-center gap-2.5 text-xs text-sl-primary cursor-pointer">
             <input
               type="checkbox"
               checked={notifyOnInvite}
@@ -302,7 +302,7 @@ export function UserSettingsPanel({ ctx }: { ctx: PluginSettingsKontext }) {
             </span>
           </label>
 
-          <label className="flex items-center gap-2.5 text-xs text-slate-200 cursor-pointer">
+          <label className="flex items-center gap-2.5 text-xs text-sl-primary cursor-pointer">
             <input
               type="checkbox"
               checked={notifyBeforeCutoff}
@@ -315,14 +315,14 @@ export function UserSettingsPanel({ ctx }: { ctx: PluginSettingsKontext }) {
             </span>
           </label>
 
-          {message && <p className="text-xs text-emerald-400">{message}</p>}
-          {error && <p className="text-xs text-red-400">{error}</p>}
+          {message && <p className="text-xs text-sl-success-text">{message}</p>}
+          {error && <p className="text-xs text-sl-danger-text">{error}</p>}
 
           <div className="pt-2">
             <button
               type="submit"
               disabled={saving}
-              className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-xs font-medium text-white inline-flex items-center gap-1.5 disabled:opacity-50"
+              className="px-4 py-2 rounded-lg bg-sl-accent hover:bg-sl-accent-hover text-xs font-medium text-sl-accent-contrast inline-flex items-center gap-1.5 disabled:opacity-50"
             >
               <Save className="w-3.5 h-3.5" />
               <span>{saving ? (isEn ? 'Saving…' : 'Speichert…') : isEn ? 'Save' : 'Speichern'}</span>

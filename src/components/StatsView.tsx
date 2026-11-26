@@ -68,24 +68,24 @@ export function StatsView({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border border-slate-800 bg-[#12171d] p-4 flex flex-wrap items-center justify-between gap-3">
+      <div className="rounded-xl border border-sl-border bg-sl-surface p-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
-          <label className="text-xs text-slate-400">
+          <label className="text-xs text-sl-muted">
             {isEn ? 'From' : 'Von'}
             <input
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
-              className="ml-2 px-2.5 py-1.5 text-xs font-mono rounded-lg border border-slate-800 bg-[#0b0e11] text-white"
+              className="ml-2 px-2.5 py-1.5 text-xs font-mono rounded-lg border border-sl-border bg-sl-canvas text-sl-heading"
             />
           </label>
-          <label className="text-xs text-slate-400">
+          <label className="text-xs text-sl-muted">
             {isEn ? 'To' : 'Bis'}
             <input
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
-              className="ml-2 px-2.5 py-1.5 text-xs font-mono rounded-lg border border-slate-800 bg-[#0b0e11] text-white"
+              className="ml-2 px-2.5 py-1.5 text-xs font-mono rounded-lg border border-sl-border bg-sl-canvas text-sl-heading"
             />
           </label>
           {(fromDate || toDate) && (
@@ -95,7 +95,7 @@ export function StatsView({
                 setFromDate('');
                 setToDate('');
               }}
-              className="px-2.5 py-1.5 text-xs text-slate-300 hover:text-white"
+              className="px-2.5 py-1.5 text-xs text-sl-primary hover:text-sl-heading"
             >
               {isEn ? 'Reset' : 'Zurücksetzen'}
             </button>
@@ -104,7 +104,7 @@ export function StatsView({
 
         <div className="flex items-center gap-3">
           {report && (
-            <span className="text-xs font-mono tabular-nums text-slate-400">
+            <span className="text-xs font-mono tabular-nums text-sl-muted">
               {report.totalEventsEvaluated} {isEn ? 'events evaluated' : 'Termine ausgewertet'}
             </span>
           )}
@@ -112,7 +112,7 @@ export function StatsView({
             <button
               type="button"
               onClick={handleExportCsv}
-              className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-white inline-flex items-center gap-1.5 whitespace-nowrap"
+              className="px-3 py-2 rounded-lg border border-sl-border bg-sl-elevated hover:border-sl-border-strong text-xs font-medium text-sl-heading inline-flex items-center gap-1.5 whitespace-nowrap"
             >
               <Download className="w-3.5 h-3.5" />
               <span>CSV Export</span>
@@ -121,30 +121,30 @@ export function StatsView({
         </div>
       </div>
 
-      {error && <p className="text-xs text-red-400">{error}</p>}
+      {error && <p className="text-xs text-sl-danger-text">{error}</p>}
 
       {loading || !report ? (
-        <div className="rounded-xl border border-slate-800 bg-[#12171d] p-8 text-center text-xs text-slate-400">
+        <div className="rounded-xl border border-sl-border bg-sl-surface p-8 text-center text-xs text-sl-muted">
           {isEn ? 'Calculating attendance metrics…' : 'Statistiken werden berechnet…'}
         </div>
       ) : (
         <>
           {/* Gruppen-Auswertung nach Units / Positionen */}
-          <section className="rounded-xl border border-slate-800 bg-[#12171d] p-5 space-y-4">
+          <section className="rounded-xl border border-sl-border bg-sl-surface p-5 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <BarChart3 className="w-4 h-4 text-sky-400" />
-                <h3 className="text-sm font-semibold text-white">
+                <BarChart3 className="w-4 h-4 text-sl-accent" />
+                <h3 className="text-sm font-semibold text-sl-heading">
                   {isEn ? 'Group Comparison' : 'Gruppierte Beteiligung'}
                 </h3>
               </div>
 
-              <div className="flex items-center gap-1 p-1 rounded-lg bg-[#0b0e11] border border-slate-800">
+              <div className="flex items-center gap-1 p-1 rounded-lg bg-sl-canvas border border-sl-border">
                 <button
                   type="button"
                   onClick={() => setGroupTab('UNIT')}
                   className={`px-3 py-1 text-xs font-medium rounded-md ${
-                    groupTab === 'UNIT' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'
+                    groupTab === 'UNIT' ? 'bg-sl-elevated text-sl-heading' : 'text-sl-muted hover:text-sl-heading'
                   }`}
                 >
                   Units
@@ -153,7 +153,7 @@ export function StatsView({
                   type="button"
                   onClick={() => setGroupTab('POSITION')}
                   className={`px-3 py-1 text-xs font-medium rounded-md ${
-                    groupTab === 'POSITION' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'
+                    groupTab === 'POSITION' ? 'bg-sl-elevated text-sl-heading' : 'text-sl-muted hover:text-sl-heading'
                   }`}
                 >
                   {isEn ? 'Positions' : 'Positionen'}
@@ -162,7 +162,7 @@ export function StatsView({
             </div>
 
             {groups.length === 0 ? (
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-sl-muted">
                 {isEn ? 'No group data available.' : 'Keine Gruppendaten vorhanden.'}
               </p>
             ) : (
@@ -170,21 +170,21 @@ export function StatsView({
                 {groups.map((g) => (
                   <div key={g.groupKey} className="space-y-1">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="font-medium text-slate-200">
+                      <span className="font-medium text-sl-primary">
                         {g.groupKey}{' '}
-                        <span className="text-slate-500 font-normal">
+                        <span className="text-sl-subtle font-normal">
                           · {g.memberCount} {isEn ? 'Members' : 'Mitglieder'} ·{' '}
                           <span className="font-mono tabular-nums">{g.invitedSlots}</span>{' '}
                           {isEn ? 'invitations' : 'Einladungen'}
                         </span>
                       </span>
-                      <span className="font-mono tabular-nums font-semibold text-white">
+                      <span className="font-mono tabular-nums font-semibold text-sl-heading">
                         {g.attendanceRatePercent.toFixed(1)}%
                       </span>
                     </div>
-                    <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
+                    <div className="h-2 rounded-full bg-sl-elevated overflow-hidden">
                       <div
-                        className="h-full bg-emerald-500 transition-all"
+                        className="h-full bg-sl-success transition-all"
                         style={{ width: `${Math.min(100, g.attendanceRatePercent)}%` }}
                       />
                     </div>
@@ -195,34 +195,34 @@ export function StatsView({
           </section>
 
           {/* Spieler-Tabelle */}
-          <section className="rounded-xl border border-slate-800 bg-[#12171d] overflow-hidden">
-            <div className="px-5 py-3.5 border-b border-slate-800 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-white">
+          <section className="rounded-xl border border-sl-border bg-sl-surface overflow-hidden">
+            <div className="px-5 py-3.5 border-b border-sl-border flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-sl-heading">
                 {isEn
                   ? 'Attendance per Member (Invited Events Only)'
                   : 'Beteiligung pro Person (nur eingeladene Termine)'}
               </h3>
-              <span className="text-xs font-mono tabular-nums text-slate-400">
+              <span className="text-xs font-mono tabular-nums text-sl-muted">
                 {report.players.length}
               </span>
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="border-b border-slate-800 text-slate-400 bg-[#0b0e11]">
+                <thead className="border-b border-sl-border text-sl-muted bg-sl-canvas">
                   <tr>
                     <th className="py-2.5 px-4 font-medium">{isEn ? 'Member' : 'Name'}</th>
                     <th className="py-2.5 px-3 font-medium">Unit · Pos</th>
                     <th className="py-2.5 px-3 font-medium text-right">
                       {isEn ? 'Invited' : 'Eingel.'}
                     </th>
-                    <th className="py-2.5 px-3 font-medium text-right text-emerald-400">
+                    <th className="py-2.5 px-3 font-medium text-right text-sl-success-text">
                       {isEn ? 'Present' : 'Anw.'}
                     </th>
-                    <th className="py-2.5 px-3 font-medium text-right text-amber-400">
+                    <th className="py-2.5 px-3 font-medium text-right text-sl-warning-text">
                       {isEn ? 'Inactive' : 'Inakt.'}
                     </th>
-                    <th className="py-2.5 px-3 font-medium text-right text-red-400">
+                    <th className="py-2.5 px-3 font-medium text-right text-sl-danger-text">
                       {isEn ? 'Absent' : 'Abw.'}
                     </th>
                     <th className="py-2.5 px-3 font-medium text-right">
@@ -234,40 +234,40 @@ export function StatsView({
                     <th className="py-2.5 px-4 font-medium text-right">Check-In</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/70">
+                <tbody className="divide-y divide-sl-border">
                   {report.players.map((p) => (
-                    <tr key={p.userUuid} className="hover:bg-slate-900/40">
-                      <td className="py-2.5 px-4 font-medium text-white whitespace-nowrap">
+                    <tr key={p.userUuid} className="hover:bg-sl-elevated/40">
+                      <td className="py-2.5 px-4 font-medium text-sl-heading whitespace-nowrap">
                         {p.trikotNummer && (
-                          <span className="font-mono tabular-nums text-slate-400 mr-1.5">
+                          <span className="font-mono tabular-nums text-sl-muted mr-1.5">
                             #{p.trikotNummer}
                           </span>
                         )}
                         {p.vollerName}
                       </td>
-                      <td className="py-2.5 px-3 text-slate-400 whitespace-nowrap">
+                      <td className="py-2.5 px-3 text-sl-muted whitespace-nowrap">
                         {p.units.join(', ')}
                         {p.position ? ` · ${p.position}` : ''}
                       </td>
-                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-slate-200">
+                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-sl-primary">
                         {p.invitedCount}
                       </td>
-                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-emerald-400">
+                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-sl-success-text">
                         {p.presentCount}
                       </td>
-                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-amber-400">
+                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-sl-warning-text">
                         {p.inactiveCount}
                       </td>
-                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-red-400">
+                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-sl-danger-text">
                         {p.absentCount}
                       </td>
-                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-slate-400">
+                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-sl-muted">
                         {p.unansweredCount}
                       </td>
-                      <td className="py-2.5 px-4 text-right font-mono tabular-nums font-semibold text-white">
+                      <td className="py-2.5 px-4 text-right font-mono tabular-nums font-semibold text-sl-heading">
                         {p.attendanceRatePercent.toFixed(1)}%
                       </td>
-                      <td className="py-2.5 px-4 text-right font-mono tabular-nums text-slate-300">
+                      <td className="py-2.5 px-4 text-right font-mono tabular-nums text-sl-primary">
                         {p.checkinTotal > 0 ? `${p.checkinPresentCount}/${p.checkinTotal}` : '—'}
                       </td>
                     </tr>

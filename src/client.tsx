@@ -204,7 +204,7 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
   if (loading && !bootstrap) {
     return (
       <div className="sl-attendance-scope">
-        <div className="rounded-xl border border-slate-800 bg-[#12171d] p-8 text-center text-sm text-slate-400">
+        <div className="rounded-xl border border-sl-border bg-sl-surface p-8 text-center text-sm text-sl-muted">
           {tAttendance(ctx.locale, 'loadingText')}
         </div>
       </div>
@@ -215,7 +215,7 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
     <div className="sl-attendance-scope">
       <div className="space-y-5">
       {error && (
-        <div className="rounded-lg border border-red-900/60 bg-red-950/30 px-4 py-3 text-xs text-red-300">
+        <div className="rounded-lg border border-sl-danger/50 bg-sl-danger/10 px-4 py-3 text-xs text-sl-danger-text">
           {error}
         </div>
       )}
@@ -259,16 +259,16 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
           />
 
           {openInvitedEvents.length > 0 && (
-            <section className="rounded-xl border border-slate-800 bg-[#12171d] p-5 space-y-3">
+            <section className="rounded-xl border border-sl-border bg-sl-surface p-5 space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-white">
+                <h3 className="text-sm font-semibold text-sl-heading">
                   {isEn ? 'Pending Responses' : 'Offene Rückmeldungen'}
                 </h3>
-                <span className="text-xs font-mono tabular-nums text-amber-400">
+                <span className="text-xs font-mono tabular-nums text-sl-warning-text">
                   {openInvitedEvents.length}
                 </span>
               </div>
-              <ul className="divide-y divide-slate-800 border border-slate-800 rounded-lg bg-[#0b0e11]">
+              <ul className="divide-y divide-sl-border border border-sl-border rounded-lg bg-sl-canvas">
                 {openInvitedEvents.slice(0, 5).map((ev) => (
                   <li
                     key={ev.id}
@@ -277,11 +277,11 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
                     <button
                       type="button"
                       onClick={() => setSelectedEventId(ev.id)}
-                      className="font-medium text-white hover:text-sky-400 text-left"
+                      className="font-medium text-sl-heading hover:text-sl-accent text-left"
                     >
                       {ev.title}
                     </button>
-                    <span className="font-mono tabular-nums text-slate-400">
+                    <span className="font-mono tabular-nums text-sl-muted">
                       {new Date(ev.startsAt).toLocaleDateString(
                         isEn ? 'en-GB' : 'de-DE',
                         { weekday: 'short', day: '2-digit', month: '2-digit' }
@@ -294,19 +294,19 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
           )}
 
           {(bootstrap?.events.length ?? 0) === 0 && (
-            <section className="rounded-xl border border-slate-800 bg-[#12171d] p-8 text-center space-y-3">
-              <Calendar className="w-8 h-8 text-slate-500 mx-auto" />
-              <p className="text-sm font-medium text-white">
+            <section className="rounded-xl border border-sl-border bg-sl-surface p-8 text-center space-y-3">
+              <Calendar className="w-8 h-8 text-sl-subtle mx-auto" />
+              <p className="text-sm font-medium text-sl-heading">
                 {tAttendance(ctx.locale, 'noEventsTitle')}
               </p>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-sl-muted">
                 {tAttendance(ctx.locale, 'noEventsHint')}
               </p>
               {isStaff && (
                 <button
                   type="button"
                   onClick={() => openOverlayForEvent(null)}
-                  className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-xs font-medium text-white inline-flex items-center gap-1.5"
+                  className="px-4 py-2 rounded-lg bg-sl-accent hover:bg-sl-accent-hover text-xs font-medium text-sl-accent-contrast inline-flex items-center gap-1.5"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>{tAttendance(ctx.locale, 'ctaNewEvent')}</span>

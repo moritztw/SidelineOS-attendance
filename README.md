@@ -1,6 +1,6 @@
 # SidelineOS-attendance
 
-Anwesenheits-, Kalender- und Verfügbarkeits-Plugin für **[SidelineOS-Core](https://github.com/moritztw/SidelineOS-core)** (SDK `v1.0`).
+Anwesenheits-, Kalender- und Verfügbarkeits-Plugin für **[SidelineOS-Core](https://github.com/moritztw/SidelineOS-core)** (SDK `v1.0`, kompatibel mit Semantik-Tokens `sl-*`, Themes und Team-Akzentfarben ab `v0.1.0-beta.2`).
 
 ## Funktionsumfang
 
@@ -11,6 +11,7 @@ Anwesenheits-, Kalender- und Verfügbarkeits-Plugin für **[SidelineOS-Core](htt
 - **Fristen & Datenschutz:** Globale Standard-Rückmeldefrist mit Einzeltermin-Override sowie Team-Admin-Steuerung, ob Abmeldegründe und Status teamweit oder nur für Coaches/Staff sichtbar sind.
 - **Live-Check-In (Opt-In):** Touch-optimiertes Platzwerkzeug für Coaches zum Soll-vs-Ist-Abgleich.
 - **Statistiken & CSV-Export:** Beteiligungsquoten ausschließlich auf Basis eingeladener Termine, gruppiert nach Units und Positionen.
+- **Theme- & Token-Unterstützung:** Alle Oberflächen, Overlays, Settings-Panels und Widgets nutzen ausschließlich die semantischen Core-Design-Tokens (`sl-*` / `var(--sl-*)`) innerhalb von `.sl-attendance-scope` und passen sich nahtlos an Dark-, Light-, High-Contrast- und Team-Akzent-Themes an.
 - **Vorbereitete Core-SDK-Schnittstellen:**
   - *Anhänge:* Sofort nutzbare Web-Links pro Termin sowie vorbereiteter `CoreAttachmentBridgeAdapter` (`CORE_ATTACHMENT`) für das kommende Core-Attachment-Modul.
   - *Widgets:* Entkoppelte Komponenten `PlayerNextEventWidget` und `StaffResponseRateWidget` im `Übersicht`-Tab, vorbereitet für künftige Hub-Widget-Slots.
@@ -36,7 +37,7 @@ npm run pack:plugin # Erzeugt build-release/sideline-plugin-v1.tar.gz + .sha256
 
 1. **Dev-Modus (`DEV_ALLOW_GIT_INSTALL=true`):** Im Sysadmin-Plugin-Store unter *Dev: Git Clone & Build* das Repository angeben.
 2. **Offline-Upload:** `npm run pack:plugin` ausführen und `build-release/sideline-plugin-v1.tar.gz` (samt `.sha256`) hochladen.
-3. **GitHub Release:** Tag pushen (`git tag v0.1.0 && git push origin v0.1.0`) — die GitHub Action veröffentlicht `sideline-plugin-v1.tar.gz`, `.sha256` und `plugin.manifest.json`.
+3. **GitHub Release:** Tag pushen (`git tag v0.2.0 && git push origin v0.2.0`) — die GitHub Action veröffentlicht `sideline-plugin-v1.tar.gz`, `.sha256` und `plugin.manifest.json`.
 
 ## Lizenz
 
