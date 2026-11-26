@@ -36,6 +36,11 @@ import { TeamSettingsPanel, UserSettingsPanel } from './components/SettingsPanel
 import { StatsView } from './components/StatsView.tsx';
 import { PlayerNextEventWidget, StaffResponseRateWidget } from './components/Widgets.tsx';
 import { tAttendance } from './services/i18n.ts';
+import {
+  buildEventDetailUrl,
+  buildTabBaseUrl,
+  readEventIdFromUrl,
+} from './services/routing.ts';
 import type {
   AttendanceEvent,
   AttendanceStatus,
@@ -55,9 +60,13 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
   const [error, setError] = useState<string | null>(null);
   const [busyRsvp, setBusyRsvp] = useState(false);
 
-  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  // URL-synchronisierte Detail-Termin-ID (?event=<id>) — überlebt Reload, Direktlinks & Browser-History
+  const [detailEventId, setDetailEventId] = useState<string | null>(() => readEventIdFromUrl());
+  const [checkinEventId, setCheckinEventId] = useState<string | null>(null);
+
   const [eventDetail, setEventDetail] = useState<EventDetailView | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
+  const [detailError, setDetailError] = useState<string | null>(null);
 
   const defaultCutoffMinutes = bootstrap?.settings.defaultCutoffMinutes ?? 240;
   const [showEventModal, setShowEventModal] = useState(false);
@@ -69,6 +78,76 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
     () => createEventAttachmentAdapter(ctx.team.id),
     [ctx.team.id]
   );
+
+  const getEventHref = useCallback(
+    (eventId: string) => buildEventDetailUrl(eventId, { currentTab: ctx.aktuellerTab }),
+    [ctx.aktuellerTab]
+  );
+
+  const backHref = useMemo(
+    () => buildTabBaseUrl({ currentTab: ctx.aktuellerTab }),
+    [ctx.aktuellerTab]
+  );
+
+  const openEventDetail = useCallback(
+    (eventId: string) => {
+      setDetailEventId(eventId);
+      setDetailError(null);
+      if (typeof window !== 'undefined') {
+        const nextUrl = buildEventDetailUrl(eventId, { currentTab: ctx.aktuellerTab });
+        const currentUrl = `${window.location.pathname}${window.location.search}`;
+        if (currentUrl !== nextUrl) {
+          try {
+            window.history.pushState({ attendanceEventId: eventId }, '', nextUrl);
+          } catch {
+            // In restriktiven Sandbox-Umgebungen ignorieren
+          }
+        }
+      }
+    },
+    [ctx.aktuellerTab]
+  );
+
+  const closeEventDetail = useCallback(
+    (options: { replace?: boolean } = {}) => {
+      setDetailEventId(null);
+      setDetailError(null);
+      if (typeof window !== 'undefined') {
+        const nextUrl = buildTabBaseUrl({ currentTab: ctx.aktuellerTab });
+        const currentUrl = `${window.location.pathname}${window.location.search}`;
+        if (currentUrl !== nextUrl) {
+          try {
+            if (options.replace) {
+              window.history.replaceState(null, '', nextUrl);
+            } else {
+              window.history.pushState(null, '', nextUrl);
+            }
+          } catch {
+            // In restriktiven Sandbox-Umgebungen ignorieren
+          }
+        }
+      }
+    },
+    [ctx.aktuellerTab]
+  );
+
+  // Browser Zurück/Vorwärts synchronisieren
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const onPopState = () => {
+      setDetailEventId(readEventIdFromUrl());
+      setDetailError(null);
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
+  // Tab-Wechsel in der Core-Topbar entfernt ?event=... aus der URL -> Detailansicht sauber schließen,
+  // während ein direkter Reload auf /modules/attendance/<tab>?event=<id> die ID beibehält.
+  useEffect(() => {
+    setDetailEventId(readEventIdFromUrl());
+    setDetailError(null);
+  }, [ctx.aktuellerTab]);
 
   const loadAll = useCallback(async () => {
     setLoading(true);
@@ -90,11 +169,13 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
   const loadDetail = useCallback(
     async (eventId: string) => {
       setLoadingDetail(true);
+      setDetailError(null);
       try {
         const detail = await fetchEventDetail(ctx.team.id, eventId);
         setEventDetail(detail);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Termindetails nicht verfügbar.');
+        setEventDetail(null);
+        setDetailError(err instanceof Error ? err.message : 'Termindetails nicht verfügbar.');
       } finally {
         setLoadingDetail(false);
       }
@@ -106,13 +187,17 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
     void loadAll();
   }, [loadAll]);
 
+  const activeLoadedEventId =
+    ctx.aktuellerTab === 'checkin' && isStaff ? checkinEventId : detailEventId;
+
   useEffect(() => {
-    if (selectedEventId) {
-      void loadDetail(selectedEventId);
+    if (activeLoadedEventId) {
+      void loadDetail(activeLoadedEventId);
     } else {
       setEventDetail(null);
+      setDetailError(null);
     }
-  }, [selectedEventId, loadDetail]);
+  }, [activeLoadedEventId, loadDetail]);
 
   const openOverlayForEvent = useCallback(
     (event?: AttendanceEvent | null) => {
@@ -140,7 +225,7 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
     try {
       await submitRsvp(ctx.team.id, eventId, { status, comment, targetUserUuid });
       await loadAll();
-      if (selectedEventId === eventId) {
+      if (detailEventId === eventId) {
         await loadDetail(eventId);
       }
     } finally {
@@ -160,14 +245,14 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
       ctx.onTabWechseln('calendar');
     }
     await loadAll();
-    if (eventId && selectedEventId === eventId) {
+    if (eventId && detailEventId === eventId) {
       await loadDetail(eventId);
     }
   }
 
   async function handleDeleteEvent(eventId: string, scope: 'single' | 'series') {
     await deleteEvent(ctx.team.id, eventId, scope);
-    setSelectedEventId(null);
+    closeEventDetail({ replace: true });
     setEventDetail(null);
     await loadAll();
   }
@@ -191,7 +276,7 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
     );
   }, [bootstrap]);
 
-  if (loading && !bootstrap) {
+  if (loading && !bootstrap && !detailEventId) {
     return (
       <div className="sl-attendance-scope">
         <div className="rounded-xl border border-sl-border bg-sl-surface p-8 text-center text-sm text-sl-muted">
@@ -200,6 +285,8 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
       </div>
     );
   }
+
+  const showDetailView = Boolean(detailEventId) && ctx.aktuellerTab !== 'checkin';
 
   return (
     <div className="sl-attendance-scope">
@@ -210,20 +297,21 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
           </div>
         )}
 
-        {selectedEventId && (ctx.aktuellerTab === 'overview' || ctx.aktuellerTab === 'calendar') ? (
+        {showDetailView && detailEventId ? (
           <EventDetailDrawer
             detail={eventDetail}
             loading={loadingDetail}
+            loadError={detailError}
             teamRolle={ctx.aktiveTeamAnsicht}
-            currentUserUuid={ctx.benutzer.uuid}
             roster={bootstrap?.roster ?? []}
             attachmentAdapter={attachmentAdapter}
+            backHref={backHref}
             locale={ctx.locale}
-            onBack={() => setSelectedEventId(null)}
+            onBack={() => closeEventDetail()}
             onSubmitRsvp={handleRsvp}
             onEditEvent={(detail) => openOverlayForEvent(detail.event)}
             onDeleteEvent={handleDeleteEvent}
-            onReloadDetail={() => void loadDetail(selectedEventId)}
+            onReloadDetail={() => void loadDetail(detailEventId)}
           />
         ) : ctx.aktuellerTab === 'overview' ? (
           <OverviewListView
@@ -234,11 +322,12 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
             isStaff={isStaff}
             busyRsvp={busyRsvp}
             locale={ctx.locale}
-            onSelectEvent={(id) => setSelectedEventId(id)}
+            getEventHref={getEventHref}
+            onSelectEvent={openEventDetail}
             onQuickRsvp={(id, st) => handleRsvp(id, st, '')}
             onCreateEvent={() => openOverlayForEvent(null)}
             onOpenCheckIn={(id) => {
-              setSelectedEventId(id);
+              setCheckinEventId(id);
               ctx.onTabWechseln('checkin');
             }}
           />
@@ -247,7 +336,8 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
             events={bootstrap?.events ?? []}
             isStaff={isStaff}
             locale={ctx.locale}
-            onSelectEvent={(id) => setSelectedEventId(id)}
+            getEventHref={getEventHref}
+            onSelectEvent={openEventDetail}
             onCreateEvent={() => openOverlayForEvent(null)}
           />
         ) : ctx.aktuellerTab === 'absences' ? (
@@ -270,13 +360,13 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
         ) : ctx.aktuellerTab === 'checkin' && isStaff ? (
           <LiveCheckInView
             events={bootstrap?.events ?? []}
-            selectedEventId={selectedEventId}
+            selectedEventId={checkinEventId}
             detail={eventDetail}
             loadingDetail={loadingDetail}
             liveCheckinEnabled={bootstrap?.settings.liveCheckinEnabled ?? false}
             roster={bootstrap?.roster ?? []}
             locale={ctx.locale}
-            onSelectEvent={(id) => setSelectedEventId(id)}
+            onSelectEvent={(id) => setCheckinEventId(id)}
             onSaveCheckIn={handleSaveCheckIn}
             onOpenTeamSettings={ctx.onTeamSettingsOeffnen}
           />

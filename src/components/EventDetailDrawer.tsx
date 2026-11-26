@@ -3,13 +3,16 @@ import {
   AlertCircle,
   ArrowLeft,
   Calendar,
+  Check,
   Edit3,
+  Link2,
   Lock,
   MapPin,
   Search,
   Trash2,
 } from 'lucide-react';
 import type { SpielerUnit, TeamRolle } from '@sidelineos/plugin-sdk';
+import { buildTabBaseUrl, isModifiedLinkClick } from '../services/routing.ts';
 import { collectAvailablePositions, filterParticipants } from '../services/targeting.ts';
 import type {
   AttendanceStatus,
@@ -31,10 +34,11 @@ import {
 export function EventDetailDrawer({
   detail,
   loading,
+  loadError,
   teamRolle,
-  currentUserUuid,
   roster,
   attachmentAdapter,
+  backHref,
   locale = 'de',
   onBack,
   onSubmitRsvp,
@@ -44,10 +48,11 @@ export function EventDetailDrawer({
 }: {
   detail: EventDetailView | null;
   loading: boolean;
+  loadError?: string | null;
   teamRolle: TeamRolle;
-  currentUserUuid: string;
   roster: RosterMember[];
   attachmentAdapter: CoreAttachmentBridgeAdapter;
+  backHref?: string;
   locale?: string;
   onBack: () => void;
   onSubmitRsvp: (
@@ -65,6 +70,7 @@ export function EventDetailDrawer({
   const [comment, setComment] = useState(detail?.event.myResponse?.comment ?? '');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [copiedLink, setCopiedLink] = useState(false);
 
   const [unitFilter, setUnitFilter] = useState<SpielerUnit | 'ALL'>('ALL');
   const [positionFilter, setPositionFilter] = useState<string>('ALL');
@@ -88,26 +94,50 @@ export function EventDetailDrawer({
     });
   }, [detail, unitFilter, positionFilter, statusFilter, searchQuery]);
 
+  const resolvedBackHref = backHref ?? buildTabBaseUrl();
+
+  function handleBackClick(e: React.MouseEvent<HTMLAnchorElement>) {
+    if (isModifiedLinkClick(e)) return;
+    e.preventDefault();
+    onBack();
+  }
+
+  async function handleCopyEventLink() {
+    if (typeof window === 'undefined') return;
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopiedLink(true);
+      window.setTimeout(() => setCopiedLink(false), 2000);
+    } catch {
+      // Clipboard API ggf. in Sandbox nicht verfügbar
+    }
+  }
+
   if (loading || !detail) {
     return (
       <section className="rounded-xl border border-sl-border bg-sl-surface p-6 space-y-4">
-        <button
-          type="button"
-          onClick={onBack}
+        <a
+          href={resolvedBackHref}
+          onClick={handleBackClick}
           className="text-xs font-medium text-sl-muted hover:text-sl-heading inline-flex items-center gap-1.5"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>{isEn ? 'Back' : 'Zurück'}</span>
-        </button>
-        <p className="text-sm text-sl-muted">
-          {loading ? (isEn ? 'Loading event…' : 'Termin wird geladen…') : 'Termin nicht verfügbar.'}
+        </a>
+        <p className={`text-sm ${loadError ? 'text-sl-danger-text' : 'text-sl-muted'}`}>
+          {loading
+            ? isEn
+              ? 'Loading event…'
+              : 'Termin wird geladen…'
+            : loadError || (isEn ? 'Event not available.' : 'Termin nicht verfügbar.')}
         </p>
       </section>
     );
   }
 
   const ev = detail.event;
-  const canManageAttachments = isStaff || ev.createdBy === currentUserUuid;
+  // Strikt nur Coaches und Team-Admins dürfen Links und Anhänge hinzufügen/entfernen
+  const canManageAttachments = isStaff;
 
   async function handleRsvp(status: AttendanceStatus, targetUserUuid?: string) {
     setBusy(true);
@@ -129,44 +159,67 @@ export function EventDetailDrawer({
         {/* Karte 1: Termin-Informationen */}
         <section className="rounded-xl border border-sl-border bg-sl-surface p-6 space-y-5">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <button
-              type="button"
-              onClick={onBack}
+            <a
+              href={resolvedBackHref}
+              onClick={handleBackClick}
               className="text-xs font-medium text-sl-muted hover:text-sl-heading inline-flex items-center gap-1.5 whitespace-nowrap transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>{isEn ? 'Back' : 'Zurück'}</span>
-            </button>
+            </a>
 
-            {isStaff && (
-              <div className="flex flex-wrap items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => onEditEvent(detail)}
-                  className="px-2.5 py-1.5 rounded-lg border border-sl-border-strong hover:bg-sl-elevated text-xs font-medium text-sl-primary hover:text-sl-heading inline-flex items-center gap-1.5 whitespace-nowrap"
-                >
-                  <Edit3 className="w-3.5 h-3.5" />
-                  <span>{isEn ? 'Edit' : 'Bearbeiten'}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onDeleteEvent(ev.id, 'single')}
-                  className="px-2.5 py-1.5 rounded-lg border border-sl-danger/50 hover:bg-sl-danger/15 text-xs font-medium text-sl-danger-text inline-flex items-center gap-1.5 whitespace-nowrap"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  <span>{isEn ? 'Delete' : 'Löschen'}</span>
-                </button>
-                {ev.seriesId && (
+            <div className="flex flex-wrap items-center gap-1.5">
+              <button
+                type="button"
+                onClick={handleCopyEventLink}
+                className="px-2.5 py-1.5 rounded-lg border border-sl-border hover:border-sl-border-strong hover:bg-sl-elevated text-xs font-medium text-sl-muted hover:text-sl-heading inline-flex items-center gap-1.5 whitespace-nowrap transition-colors"
+              >
+                {copiedLink ? (
+                  <Check className="w-3.5 h-3.5 text-sl-success-text" />
+                ) : (
+                  <Link2 className="w-3.5 h-3.5" />
+                )}
+                <span>
+                  {copiedLink
+                    ? isEn
+                      ? 'Copied'
+                      : 'Kopiert'
+                    : isEn
+                      ? 'Copy link'
+                      : 'Link kopieren'}
+                </span>
+              </button>
+
+              {isStaff && (
+                <>
                   <button
                     type="button"
-                    onClick={() => onDeleteEvent(ev.id, 'series')}
-                    className="px-2.5 py-1.5 rounded-lg border border-sl-danger/50 hover:bg-sl-danger/15 text-xs font-medium text-sl-danger-text whitespace-nowrap"
+                    onClick={() => onEditEvent(detail)}
+                    className="px-2.5 py-1.5 rounded-lg border border-sl-border-strong hover:bg-sl-elevated text-xs font-medium text-sl-primary hover:text-sl-heading inline-flex items-center gap-1.5 whitespace-nowrap"
                   >
-                    {isEn ? 'Delete series' : 'Serie löschen'}
+                    <Edit3 className="w-3.5 h-3.5" />
+                    <span>{isEn ? 'Edit' : 'Bearbeiten'}</span>
                   </button>
-                )}
-              </div>
-            )}
+                  <button
+                    type="button"
+                    onClick={() => onDeleteEvent(ev.id, 'single')}
+                    className="px-2.5 py-1.5 rounded-lg border border-sl-danger/50 hover:bg-sl-danger/15 text-xs font-medium text-sl-danger-text inline-flex items-center gap-1.5 whitespace-nowrap"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>{isEn ? 'Delete' : 'Löschen'}</span>
+                  </button>
+                  {ev.seriesId && (
+                    <button
+                      type="button"
+                      onClick={() => onDeleteEvent(ev.id, 'series')}
+                      className="px-2.5 py-1.5 rounded-lg border border-sl-danger/50 hover:bg-sl-danger/15 text-xs font-medium text-sl-danger-text whitespace-nowrap"
+                    >
+                      {isEn ? 'Delete series' : 'Serie löschen'}
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
           </div>
 
           <header className="space-y-3">

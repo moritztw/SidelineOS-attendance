@@ -1,4 +1,5 @@
 import { AlertCircle, CheckCircle2, ChevronRight, Clock } from 'lucide-react';
+import { buildEventDetailUrl, isModifiedLinkClick } from '../services/routing.ts';
 import type { EventSummaryView } from '../types.ts';
 import {
   CategoryIconBadge,
@@ -9,16 +10,19 @@ import {
 export function PendingResponsesCard({
   events,
   locale = 'de',
+  getEventHref,
   onSelectEvent,
   maxItems = 25,
 }: {
   events: EventSummaryView[];
   locale?: string;
+  getEventHref?: (eventId: string) => string;
   onSelectEvent: (eventId: string) => void;
   maxItems?: number;
 }) {
   const isEn = locale.startsWith('en');
   const visible = events.slice(0, maxItems);
+  const resolveHref = getEventHref ?? ((id: string) => buildEventDetailUrl(id));
 
   return (
     <section className="rounded-xl border border-sl-border bg-sl-surface p-4 space-y-3">
@@ -55,9 +59,13 @@ export function PendingResponsesCard({
         <ul className="divide-y divide-sl-border max-h-[520px] overflow-y-auto -mx-1 px-1">
           {visible.map((ev) => (
             <li key={ev.id} className="py-2 first:pt-0 last:pb-0">
-              <button
-                type="button"
-                onClick={() => onSelectEvent(ev.id)}
+              <a
+                href={resolveHref(ev.id)}
+                onClick={(e) => {
+                  if (isModifiedLinkClick(e)) return;
+                  e.preventDefault();
+                  onSelectEvent(ev.id);
+                }}
                 className="w-full text-left flex items-center justify-between gap-2.5 px-2 py-2 rounded-lg hover:bg-sl-elevated/70 transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-sl-accent"
               >
                 <div className="flex items-center gap-2.5 min-w-0">
@@ -75,7 +83,7 @@ export function PendingResponsesCard({
                   aria-label={isEn ? 'Response open' : 'Rückmeldung offen'}
                   className="w-4 h-4 text-sl-warning-text shrink-0"
                 />
-              </button>
+              </a>
             </li>
           ))}
         </ul>
@@ -87,16 +95,19 @@ export function PendingResponsesCard({
 export function UpcomingEventsCard({
   events,
   locale = 'de',
+  getEventHref,
   onSelectEvent,
   maxItems = 5,
 }: {
   events: EventSummaryView[];
   locale?: string;
+  getEventHref?: (eventId: string) => string;
   onSelectEvent: (eventId: string) => void;
   maxItems?: number;
 }) {
   const isEn = locale.startsWith('en');
   const visible = events.slice(0, maxItems);
+  const resolveHref = getEventHref ?? ((id: string) => buildEventDetailUrl(id));
 
   return (
     <section className="rounded-xl border border-sl-border bg-sl-surface p-4 space-y-3">
@@ -125,9 +136,13 @@ export function UpcomingEventsCard({
 
             return (
               <li key={ev.id} className="py-2 first:pt-0 last:pb-0">
-                <button
-                  type="button"
-                  onClick={() => onSelectEvent(ev.id)}
+                <a
+                  href={resolveHref(ev.id)}
+                  onClick={(e) => {
+                    if (isModifiedLinkClick(e)) return;
+                    e.preventDefault();
+                    onSelectEvent(ev.id);
+                  }}
                   className="w-full text-left flex items-center justify-between gap-2.5 px-2 py-2 rounded-lg hover:bg-sl-elevated/70 transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-sl-accent"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
@@ -155,7 +170,7 @@ export function UpcomingEventsCard({
                   ) : (
                     <ChevronRight className="w-4 h-4 text-sl-subtle shrink-0" />
                   )}
-                </button>
+                </a>
               </li>
             );
           })}

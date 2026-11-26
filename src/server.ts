@@ -456,7 +456,7 @@ export async function dispatchDueReminders(
       eventType: 'attendance.reminder_due',
       title: `Rückmeldung offen: ${batch.event.title}`,
       message: `Bitte trage deine Anwesenheit vor Ablauf der Frist ein.`,
-      linkPath: '/',
+      linkPath: `/modules/attendance/overview?event=${encodeURIComponent(batch.event.id)}`,
       priority: 'warning',
       recipientUserUuids: batch.recipientUserUuids,
       metadata: {
@@ -874,7 +874,10 @@ export const backendPlugin: SidelineBackendPlugin = {
             createdIds.length > 1
               ? `${createdIds.length} Termine wurden angelegt. Bitte trage deine Verfügbarkeit pro Termin ein.`
               : `Du bist zu "${title}" eingeladen. Bitte gib deine Rückmeldung ab.`,
-          linkPath: '/',
+          linkPath:
+            createdIds.length === 1
+              ? `/modules/attendance/overview?event=${encodeURIComponent(createdIds[0])}`
+              : '/modules/attendance/overview',
           priority: 'info',
           recipientUserUuids: invitedUserUuids,
           metadata: { eventIds: createdIds, seriesId },
@@ -1077,7 +1080,7 @@ export const backendPlugin: SidelineBackendPlugin = {
         eventType: 'attendance.event_updated',
         title: `Termin aktualisiert: ${title}`,
         message: 'Details oder Zielgruppe des Termins wurden angepasst.',
-        linkPath: '/',
+        linkPath: `/modules/attendance/overview?event=${encodeURIComponent(eventId)}`,
         priority: 'info',
         recipientUserUuids: invitedUserUuids,
         metadata: { eventId },
@@ -1238,10 +1241,10 @@ export const backendPlugin: SidelineBackendPlugin = {
         return { status: 404, body: { fehler: 'Termin nicht gefunden.' } };
       }
       const ev = mapEventRow(evRes.rows[0]);
-      if (!isStaff(role) && ev.createdBy !== userUuid) {
+      if (!isStaff(role)) {
         return {
           status: 403,
-          body: { fehler: 'Nur Ersteller, Coaches oder Team Admins dürfen Anhänge hinzufügen.' },
+          body: { fehler: 'Nur Coaches oder Team Admins dürfen Links und Anhänge hinzufügen.' },
         };
       }
 
@@ -1276,7 +1279,7 @@ export const backendPlugin: SidelineBackendPlugin = {
         eventType: 'event.attachment_added',
         title: `Neuer Anhang zu "${ev.title}"`,
         message: `${title} wurde am Termin hinterlegt.`,
-        linkPath: '/',
+        linkPath: `/modules/attendance/overview?event=${encodeURIComponent(eventId)}`,
         priority: 'info',
         recipientUserUuids: ev.invitedUserUuids,
         metadata: { eventId, attachmentId: attId, kind },
@@ -1312,10 +1315,10 @@ export const backendPlugin: SidelineBackendPlugin = {
       if (evRes.rows.length === 0) {
         return { status: 404, body: { fehler: 'Termin nicht gefunden.' } };
       }
-      if (!isStaff(role) && String(evRes.rows[0].created_by) !== userUuid) {
+      if (!isStaff(role)) {
         return {
           status: 403,
-          body: { fehler: 'Nur Ersteller, Coaches oder Team Admins dürfen Anhänge entfernen.' },
+          body: { fehler: 'Nur Coaches oder Team Admins dürfen Links und Anhänge entfernen.' },
         };
       }
       await ctx.db.query(

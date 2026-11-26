@@ -4,6 +4,11 @@ import { doesEventOverlapAbsence, findMatchingAbsenceForEvent } from '../src/ser
 import { canEditRsvp, getEffectiveCutoffMinutes } from '../src/services/cutoff.ts';
 import { generateSeriesOccurrences } from '../src/services/recurrence.ts';
 import { findDueReminders } from '../src/services/reminders.ts';
+import {
+  buildEventDetailUrl,
+  buildTabBaseUrl,
+  readEventIdFromUrl,
+} from '../src/services/routing.ts';
 import { buildStatsCsv, calculateStatsReport } from '../src/services/stats.ts';
 import {
   collectAvailablePositions,
@@ -387,3 +392,29 @@ test('Erinnerungs-Logik findet fällige offene Einladungen ohne Doppelversand', 
   });
   assert.equal(afterLog.length, 0);
 });
+
+test('Deep-Link-Routing für Termindetails erzeugt Core-kompatible URLs und überlebt Reloads', () => {
+  const fromCalendar = buildEventDetailUrl('evt-123', {
+    currentTab: 'calendar',
+    currentPathname: '/modules/attendance/calendar',
+    currentSearch: '',
+  });
+  assert.equal(fromCalendar, '/modules/attendance/calendar?event=evt-123');
+  assert.equal(readEventIdFromUrl({ search: '?event=evt-123' }), 'evt-123');
+  assert.equal(readEventIdFromUrl({ search: '', hash: '#event=evt-456' }), 'evt-456');
+
+  const fromUnknownTab = buildEventDetailUrl('evt-123', {
+    currentTab: 'stats',
+    currentPathname: '/modules/attendance/stats',
+    currentSearch: '?foo=bar',
+  });
+  assert.equal(fromUnknownTab, '/modules/attendance/overview?foo=bar&event=evt-123');
+
+  const backUrl = buildTabBaseUrl({
+    currentTab: 'calendar',
+    currentPathname: '/modules/attendance/calendar',
+    currentSearch: '?foo=bar&event=evt-123',
+  });
+  assert.equal(backUrl, '/modules/attendance/calendar?foo=bar');
+});
+

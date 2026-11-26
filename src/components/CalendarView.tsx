@@ -10,6 +10,7 @@ import {
   Plus,
   X,
 } from 'lucide-react';
+import { buildEventDetailUrl, isModifiedLinkClick } from '../services/routing.ts';
 import type { AttendanceStatus, EventCategory, EventSummaryView } from '../types.ts';
 import { PendingResponsesCard, UpcomingEventsCard } from './SidebarCards.tsx';
 import {
@@ -74,17 +75,20 @@ export function CalendarView({
   events,
   isStaff,
   locale = 'de',
+  getEventHref,
   onSelectEvent,
   onCreateEvent,
 }: {
   events: EventSummaryView[];
   isStaff: boolean;
   locale?: string;
+  getEventHref?: (eventId: string) => string;
   onSelectEvent: (eventId: string) => void;
   onCreateEvent: () => void;
 }) {
   const isEn = locale.startsWith('en');
   const loc = isEn ? 'en-GB' : 'de-DE';
+  const resolveHref = getEventHref ?? ((id: string) => buildEventDetailUrl(id, { currentTab: 'calendar' }));
 
   const initialAnchor = useMemo(() => {
     const now = new Date();
@@ -343,6 +347,7 @@ export function CalendarView({
                             <CalendarEventChip
                               key={ev.id}
                               event={ev}
+                              href={resolveHref(ev.id)}
                               locale={locale}
                               onSelect={() => onSelectEvent(ev.id)}
                             />
@@ -403,6 +408,7 @@ export function CalendarView({
                             <CalendarEventChip
                               key={ev.id}
                               event={ev}
+                              href={resolveHref(ev.id)}
                               locale={locale}
                               detailed
                               onSelect={() => onSelectEvent(ev.id)}
@@ -510,12 +516,14 @@ export function CalendarView({
           <UpcomingEventsCard
             events={upcomingEvents}
             locale={locale}
+            getEventHref={resolveHref}
             onSelectEvent={onSelectEvent}
             maxItems={4}
           />
           <PendingResponsesCard
             events={openInvitedEvents}
             locale={locale}
+            getEventHref={resolveHref}
             onSelectEvent={onSelectEvent}
             maxItems={8}
           />
@@ -527,11 +535,13 @@ export function CalendarView({
 
 function CalendarEventChip({
   event,
+  href,
   locale,
   detailed = false,
   onSelect,
 }: {
   event: EventSummaryView;
+  href: string;
   locale: string;
   detailed?: boolean;
   onSelect: () => void;
@@ -553,10 +563,14 @@ function CalendarEventChip({
             : AlertCircle;
 
   return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className={`w-full text-left rounded-lg border px-2 py-1.5 transition-colors space-y-1 focus-visible:outline-2 focus-visible:outline-sl-accent ${
+    <a
+      href={href}
+      onClick={(e) => {
+        if (isModifiedLinkClick(e)) return;
+        e.preventDefault();
+        onSelect();
+      }}
+      className={`block w-full text-left rounded-lg border px-2 py-1.5 transition-colors space-y-1 focus-visible:outline-2 focus-visible:outline-sl-accent ${
         !event.isInvited
           ? 'border-sl-border bg-sl-canvas/60 opacity-75 hover:opacity-100'
           : 'border-sl-border-strong/70 bg-sl-elevated/60 hover:bg-sl-elevated hover:border-sl-accent/60'
@@ -595,6 +609,6 @@ function CalendarEventChip({
           {isEn ? 'Response open' : 'Offene Rückmeldung'}
         </div>
       ) : null}
-    </button>
+    </a>
   );
 }

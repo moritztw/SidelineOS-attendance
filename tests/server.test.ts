@@ -457,7 +457,33 @@ test('Backend-Integration: RBAC, Zielgruppen-Einladung, Privacy, Abwesenheit, Ch
   );
   assert.equal(rsvpRes.status, 200);
 
-  // Admin fügt Link-Anhang hinzu -> Notification wird ausgelöst
+  // Spieler darf KEINE Links/Anhänge hinzufügen (auch nicht in Spieler-Vorschau des Erstellers)
+  const playerAttDenied = await backendPlugin.handleRequest!(
+    {
+      method: 'POST',
+      path: `/events/${eventId}/attachments`,
+      params: {},
+      query: {},
+      body: { kind: 'LINK', title: 'Spieler-Link', url: 'https://example.com/player' },
+    },
+    lbCtx
+  );
+  assert.equal(playerAttDenied.status, 403);
+
+  const creatorAsPlayerCtx = createCtx(db, 'PLAYER', 'u-admin', sent);
+  const creatorPlayerAttDenied = await backendPlugin.handleRequest!(
+    {
+      method: 'POST',
+      path: `/events/${eventId}/attachments`,
+      params: {},
+      query: {},
+      body: { kind: 'LINK', title: 'Preview-Link', url: 'https://example.com/preview' },
+    },
+    creatorAsPlayerCtx
+  );
+  assert.equal(creatorPlayerAttDenied.status, 403);
+
+  // Admin fügt Link-Anhang hinzu -> Notification enthält direkten Deep-Link zum Termin
   const attRes = await backendPlugin.handleRequest!(
     {
       method: 'POST',
@@ -469,7 +495,37 @@ test('Backend-Integration: RBAC, Zielgruppen-Einladung, Privacy, Abwesenheit, Ch
     adminCtx
   );
   assert.equal(attRes.status, 201);
-  assert.ok(sent.some((n) => n.eventType === 'event.attachment_added'));
+  const attId = (attRes.body as { attachment: { id: string } }).attachment.id;
+  const attNotif = sent.find((n) => n.eventType === 'event.attachment_added');
+  assert.ok(attNotif);
+  assert.equal(attNotif.linkPath, `/modules/attendance/overview?event=${encodeURIComponent(eventId)}`);
+
+  // Spieler darf Anhänge ebenfalls nicht löschen
+  const playerDeleteDenied = await backendPlugin.handleRequest!(
+    {
+      method: 'DELETE',
+      path: `/events/${eventId}/attachments/${attId}`,
+      params: {},
+      query: {},
+      body: {},
+    },
+    creatorAsPlayerCtx
+  );
+  assert.equal(playerDeleteDenied.status, 403);
+
+  // Coach darf Links/Anhänge hinzufügen
+  const coachCtx = createCtx(db, 'COACH', 'u-coach', sent);
+  const coachAttRes = await backendPlugin.handleRequest!(
+    {
+      method: 'POST',
+      path: `/events/${eventId}/attachments`,
+      params: {},
+      query: {},
+      body: { kind: 'LINK', title: 'Coach Notes', url: 'https://example.com/notes' },
+    },
+    coachCtx
+  );
+  assert.equal(coachAttRes.status, 201);
 
   // Live Check-In durch Coach/Admin
   const checkinRes = await backendPlugin.handleRequest!(

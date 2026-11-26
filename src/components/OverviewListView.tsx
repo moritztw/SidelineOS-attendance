@@ -13,6 +13,7 @@ import {
   SlidersHorizontal,
   Users,
 } from 'lucide-react';
+import { buildEventDetailUrl, isModifiedLinkClick } from '../services/routing.ts';
 import type { AttendanceStatus, EventCategory, EventSummaryView } from '../types.ts';
 import { PendingResponsesCard } from './SidebarCards.tsx';
 import {
@@ -34,6 +35,7 @@ export function OverviewListView({
   isStaff,
   busyRsvp,
   locale = 'de',
+  getEventHref,
   onSelectEvent,
   onQuickRsvp,
   onCreateEvent,
@@ -46,12 +48,14 @@ export function OverviewListView({
   isStaff: boolean;
   busyRsvp: boolean;
   locale?: string;
+  getEventHref?: (eventId: string) => string;
   onSelectEvent: (eventId: string) => void;
   onQuickRsvp: (eventId: string, status: AttendanceStatus) => Promise<void>;
   onCreateEvent: () => void;
   onOpenCheckIn: (eventId: string) => void;
 }) {
   const isEn = locale.startsWith('en');
+  const resolveHref = getEventHref ?? ((id: string) => buildEventDetailUrl(id, { currentTab: 'overview' }));
   const [timeScope, setTimeScope] = useState<'UPCOMING' | 'ALL' | 'PAST'>('UPCOMING');
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
@@ -260,14 +264,18 @@ export function OverviewListView({
                   <span>{isEn ? 'Live Check-In' : 'Live-Check-In'}</span>
                 </button>
               )}
-              <button
-                type="button"
-                onClick={() => onSelectEvent(nextTeamEvent.id)}
+              <a
+                href={resolveHref(nextTeamEvent.id)}
+                onClick={(e) => {
+                  if (isModifiedLinkClick(e)) return;
+                  e.preventDefault();
+                  onSelectEvent(nextTeamEvent.id);
+                }}
                 className="px-2.5 py-1.5 rounded-lg border border-sl-border hover:border-sl-border-strong text-xs font-medium text-sl-primary hover:text-sl-heading inline-flex items-center gap-1 whitespace-nowrap"
               >
                 <span>{isEn ? 'Roster' : 'Kader prüfen'}</span>
                 <ChevronRight className="w-3.5 h-3.5" />
-              </button>
+              </a>
             </div>
           </div>
         )}
@@ -312,6 +320,7 @@ export function OverviewListView({
               event={featuredEvent}
               busy={busyRsvp}
               locale={locale}
+              href={resolveHref(featuredEvent.id)}
               onSelectEvent={onSelectEvent}
               onQuickRsvp={onQuickRsvp}
             />
@@ -323,6 +332,7 @@ export function OverviewListView({
                 event={ev}
                 busy={busyRsvp}
                 locale={locale}
+                href={resolveHref(ev.id)}
                 onSelectEvent={onSelectEvent}
                 onQuickRsvp={onQuickRsvp}
               />
@@ -336,6 +346,7 @@ export function OverviewListView({
         <PendingResponsesCard
           events={openInvitedEvents}
           locale={locale}
+          getEventHref={resolveHref}
           onSelectEvent={onSelectEvent}
         />
       </aside>
@@ -347,12 +358,14 @@ function FeaturedEventCard({
   event,
   busy,
   locale,
+  href,
   onSelectEvent,
   onQuickRsvp,
 }: {
   event: EventSummaryView;
   busy: boolean;
   locale: string;
+  href: string;
   onSelectEvent: (eventId: string) => void;
   onQuickRsvp: (eventId: string, status: AttendanceStatus) => Promise<void>;
 }) {
@@ -367,6 +380,12 @@ function FeaturedEventCard({
         ? 'border-sl-accent/55'
         : 'border-sl-border-strong';
 
+  function handleNavigate(e: React.MouseEvent<HTMLAnchorElement>) {
+    if (isModifiedLinkClick(e)) return;
+    e.preventDefault();
+    onSelectEvent(event.id);
+  }
+
   return (
     <article
       className={`rounded-xl border ${borderHighlight} bg-sl-surface p-5 transition-colors`}
@@ -380,13 +399,13 @@ function FeaturedEventCard({
               <div className="text-xs text-sl-muted">
                 {formatCategoryLabel(event.category, locale)}
               </div>
-              <button
-                type="button"
-                onClick={() => onSelectEvent(event.id)}
+              <a
+                href={href}
+                onClick={handleNavigate}
                 className="text-left text-2xl font-bold tracking-tight text-sl-heading hover:text-sl-accent transition-colors block truncate max-w-full"
               >
                 {event.title}
-              </button>
+              </a>
               <div className="flex items-center gap-1.5 text-xs text-sl-primary font-mono tabular-nums">
                 <Calendar className="w-3.5 h-3.5 text-sl-muted shrink-0" />
                 <span className="truncate">{formatEventDateOnly(event.startsAt, locale)}</span>
@@ -441,14 +460,14 @@ function FeaturedEventCard({
             <span className="text-xs font-medium text-sl-heading">
               {isEn ? 'Your response' : 'Deine Rückmeldung'}
             </span>
-            <button
-              type="button"
-              onClick={() => onSelectEvent(event.id)}
+            <a
+              href={href}
+              onClick={handleNavigate}
               className="px-2.5 py-1 rounded-md border border-sl-border bg-sl-canvas hover:border-sl-border-strong text-xs font-medium text-sl-primary hover:text-sl-heading inline-flex items-center gap-1 whitespace-nowrap transition-colors"
             >
               <span>{isEn ? 'Details' : 'Details'}</span>
               <ChevronRight className="w-3.5 h-3.5" />
-            </button>
+            </a>
           </div>
 
           {event.isInvited ? (
@@ -476,12 +495,14 @@ function CompactEventCard({
   event,
   busy,
   locale,
+  href,
   onSelectEvent,
   onQuickRsvp,
 }: {
   event: EventSummaryView;
   busy: boolean;
   locale: string;
+  href: string;
   onSelectEvent: (eventId: string) => void;
   onQuickRsvp: (eventId: string, status: AttendanceStatus) => Promise<void>;
 }) {
@@ -489,6 +510,12 @@ function CompactEventCard({
   const myStatus = event.myResponse?.status ?? null;
   const statusMeta = myStatus ? STATUS_META[myStatus] : null;
   const muted = !event.isInvited;
+
+  function handleNavigate(e: React.MouseEvent<HTMLAnchorElement>) {
+    if (isModifiedLinkClick(e)) return;
+    e.preventDefault();
+    onSelectEvent(event.id);
+  }
 
   return (
     <article
@@ -501,13 +528,13 @@ function CompactEventCard({
         <div className="flex items-center gap-3.5 min-w-0 flex-1">
           <CategoryIconBadge category={event.category} size="md" />
           <div className="min-w-0 space-y-0.5">
-            <button
-              type="button"
-              onClick={() => onSelectEvent(event.id)}
+            <a
+              href={href}
+              onClick={handleNavigate}
               className="text-left text-base font-semibold text-sl-heading hover:text-sl-accent transition-colors block truncate max-w-full"
             >
               {event.title}
-            </button>
+            </a>
             <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-sl-muted font-mono tabular-nums">
               <span className="inline-flex items-center gap-1">
                 <Calendar className="w-3 h-3 shrink-0" />
@@ -564,14 +591,14 @@ function CompactEventCard({
             </div>
           )}
 
-          <button
-            type="button"
-            onClick={() => onSelectEvent(event.id)}
+          <a
+            href={href}
+            onClick={handleNavigate}
             className="min-h-[40px] px-3 py-2 rounded-lg border border-sl-border bg-sl-canvas hover:border-sl-border-strong text-xs font-medium text-sl-primary hover:text-sl-heading inline-flex items-center justify-center gap-1 whitespace-nowrap shrink-0 transition-colors"
           >
             <span>{isEn ? 'Details' : 'Details'}</span>
             <ChevronRight className="w-3.5 h-3.5" />
-          </button>
+          </a>
         </div>
       </div>
     </article>
