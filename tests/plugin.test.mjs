@@ -164,11 +164,12 @@ test('Release-Packaging erzeugt valides USTAR .tar.gz inkl. client.css, server.j
   ]);
 });
 
-test('Release-Workflow installiert ohne Peer-Resolution-Fehler (--legacy-peer-deps)', async () => {
+test('Release-Workflow installiert ohne Lockfile-Zwang und ohne Peer-Resolution-Fehler', async () => {
   const workflow = await fs.readFile(
     path.join(ROOT_DIR, '.github/workflows/release.yml'),
     'utf8'
   );
+  assert.doesNotMatch(workflow, /^\s*cache:\s*['"]?npm['"]?/m);
   assert.match(workflow, /npm ci --legacy-peer-deps/);
   assert.match(workflow, /npm install --legacy-peer-deps/);
 });
