@@ -4,7 +4,6 @@ import type {
   SidelinePlugin,
   TeamRolle,
 } from '@sidelineos/plugin-sdk';
-import { Calendar, Plus } from 'lucide-react';
 import manifest from '../plugin.manifest.json';
 import {
   createAbsence,
@@ -32,6 +31,7 @@ import {
   type EventFormDraft,
 } from './components/EventFormModal.tsx';
 import { LiveCheckInView } from './components/LiveCheckInView.tsx';
+import { OverviewListView } from './components/OverviewListView.tsx';
 import { TeamSettingsPanel, UserSettingsPanel } from './components/SettingsPanels.tsx';
 import { StatsView } from './components/StatsView.tsx';
 import { PlayerNextEventWidget, StaffResponseRateWidget } from './components/Widgets.tsx';
@@ -49,7 +49,6 @@ const OPEN_CREATE_MODAL_EVENT = 'sideline-attendance:open-create';
 
 function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
   const isStaff = ctx.aktiveTeamAnsicht === 'TEAM_ADMIN' || ctx.aktiveTeamAnsicht === 'COACH';
-  const isEn = ctx.locale.startsWith('en');
 
   const [bootstrap, setBootstrap] = useState<BootstrapPayload | null>(null);
   const [loading, setLoading] = useState(true);
@@ -178,15 +177,6 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
     await loadDetail(eventId);
   }
 
-  const nextInvitedEvent = useMemo(() => {
-    const nowMs = Date.now();
-    return (
-      bootstrap?.events.find(
-        (ev) => ev.isInvited && Date.parse(ev.endsAt) >= nowMs - 1800_000
-      ) ?? null
-    );
-  }, [bootstrap]);
-
   const nextTeamEvent = useMemo(() => {
     const nowMs = Date.now();
     return (
@@ -214,187 +204,123 @@ function AttendanceMainView({ ctx }: { ctx: PluginLaufzeitKontext }) {
   return (
     <div className="sl-attendance-scope">
       <div className="space-y-5">
-      {error && (
-        <div className="rounded-lg border border-sl-danger/50 bg-sl-danger/10 px-4 py-3 text-xs text-sl-danger-text">
-          {error}
-        </div>
-      )}
+        {error && (
+          <div className="rounded-lg border border-sl-danger/50 bg-sl-danger/10 px-4 py-3 text-xs text-sl-danger-text">
+            {error}
+          </div>
+        )}
 
-      {selectedEventId && (ctx.aktuellerTab === 'overview' || ctx.aktuellerTab === 'calendar') ? (
-        <EventDetailDrawer
-          detail={eventDetail}
-          loading={loadingDetail}
-          teamRolle={ctx.aktiveTeamAnsicht}
-          currentUserUuid={ctx.benutzer.uuid}
-          roster={bootstrap?.roster ?? []}
-          attachmentAdapter={attachmentAdapter}
-          locale={ctx.locale}
-          onBack={() => setSelectedEventId(null)}
-          onSubmitRsvp={handleRsvp}
-          onEditEvent={(detail) => openOverlayForEvent(detail.event)}
-          onDeleteEvent={handleDeleteEvent}
-          onReloadDetail={() => void loadDetail(selectedEventId)}
-        />
-      ) : ctx.aktuellerTab === 'overview' ? (
-        <div className="space-y-5">
-          {isStaff && (
-            <StaffResponseRateWidget
-              event={nextTeamEvent}
-              liveCheckinEnabled={bootstrap?.settings.liveCheckinEnabled ?? false}
-              locale={ctx.locale}
-              onOpenDetail={(id) => setSelectedEventId(id)}
-              onOpenCheckIn={(id) => {
-                setSelectedEventId(id);
-                ctx.onTabWechseln('checkin');
-              }}
-            />
-          )}
-
-          <PlayerNextEventWidget
-            event={nextInvitedEvent}
+        {selectedEventId && (ctx.aktuellerTab === 'overview' || ctx.aktuellerTab === 'calendar') ? (
+          <EventDetailDrawer
+            detail={eventDetail}
+            loading={loadingDetail}
+            teamRolle={ctx.aktiveTeamAnsicht}
+            currentUserUuid={ctx.benutzer.uuid}
+            roster={bootstrap?.roster ?? []}
+            attachmentAdapter={attachmentAdapter}
             locale={ctx.locale}
-            busy={busyRsvp}
-            onSubmitRsvp={(id, st, comment) => handleRsvp(id, st, comment)}
-            onOpenDetail={(id) => setSelectedEventId(id)}
+            onBack={() => setSelectedEventId(null)}
+            onSubmitRsvp={handleRsvp}
+            onEditEvent={(detail) => openOverlayForEvent(detail.event)}
+            onDeleteEvent={handleDeleteEvent}
+            onReloadDetail={() => void loadDetail(selectedEventId)}
           />
+        ) : ctx.aktuellerTab === 'overview' ? (
+          <OverviewListView
+            events={bootstrap?.events ?? []}
+            openInvitedEvents={openInvitedEvents}
+            nextTeamEvent={nextTeamEvent}
+            liveCheckinEnabled={bootstrap?.settings.liveCheckinEnabled ?? false}
+            isStaff={isStaff}
+            busyRsvp={busyRsvp}
+            locale={ctx.locale}
+            onSelectEvent={(id) => setSelectedEventId(id)}
+            onQuickRsvp={(id, st) => handleRsvp(id, st, '')}
+            onCreateEvent={() => openOverlayForEvent(null)}
+            onOpenCheckIn={(id) => {
+              setSelectedEventId(id);
+              ctx.onTabWechseln('checkin');
+            }}
+          />
+        ) : ctx.aktuellerTab === 'calendar' ? (
+          <CalendarView
+            events={bootstrap?.events ?? []}
+            isStaff={isStaff}
+            locale={ctx.locale}
+            onSelectEvent={(id) => setSelectedEventId(id)}
+            onCreateEvent={() => openOverlayForEvent(null)}
+          />
+        ) : ctx.aktuellerTab === 'absences' ? (
+          <AbsencesView
+            absences={bootstrap?.absences ?? []}
+            roster={bootstrap?.roster ?? []}
+            currentUserUuid={ctx.benutzer.uuid}
+            isStaff={isStaff}
+            locale={ctx.locale}
+            onCreateAbsence={async (payload) => {
+              const res = await createAbsence(ctx.team.id, payload);
+              await loadAll();
+              return res;
+            }}
+            onDeleteAbsence={async (id) => {
+              await deleteAbsence(ctx.team.id, id);
+              await loadAll();
+            }}
+          />
+        ) : ctx.aktuellerTab === 'checkin' && isStaff ? (
+          <LiveCheckInView
+            events={bootstrap?.events ?? []}
+            selectedEventId={selectedEventId}
+            detail={eventDetail}
+            loadingDetail={loadingDetail}
+            liveCheckinEnabled={bootstrap?.settings.liveCheckinEnabled ?? false}
+            roster={bootstrap?.roster ?? []}
+            locale={ctx.locale}
+            onSelectEvent={(id) => setSelectedEventId(id)}
+            onSaveCheckIn={handleSaveCheckIn}
+            onOpenTeamSettings={ctx.onTeamSettingsOeffnen}
+          />
+        ) : ctx.aktuellerTab === 'editor' && isStaff ? (
+          <EventFormTabView
+            season={ctx.gewaehlteSaison}
+            draft={eventDraft}
+            onDraftChange={setEventDraft}
+            roster={bootstrap?.roster ?? []}
+            locale={ctx.locale}
+            onCancel={() => {
+              setEventDraft(createEventFormDraft(defaultCutoffMinutes, null));
+              ctx.onTabWechseln('calendar');
+            }}
+            onPopInOverlay={() => {
+              ctx.onTabWechseln('calendar');
+              setShowEventModal(true);
+            }}
+            onSave={handleSaveEvent}
+          />
+        ) : (
+          <StatsView
+            teamId={ctx.team.id}
+            season={ctx.gewaehlteSaison}
+            isStaff={isStaff}
+            locale={ctx.locale}
+          />
+        )}
 
-          {openInvitedEvents.length > 0 && (
-            <section className="rounded-xl border border-sl-border bg-sl-surface p-5 space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-sl-heading">
-                  {isEn ? 'Pending Responses' : 'Offene Rückmeldungen'}
-                </h3>
-                <span className="text-xs font-mono tabular-nums text-sl-warning-text">
-                  {openInvitedEvents.length}
-                </span>
-              </div>
-              <ul className="divide-y divide-sl-border border border-sl-border rounded-lg bg-sl-canvas">
-                {openInvitedEvents.slice(0, 5).map((ev) => (
-                  <li
-                    key={ev.id}
-                    className="px-4 py-3 flex flex-wrap items-center justify-between gap-2 text-xs"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => setSelectedEventId(ev.id)}
-                      className="font-medium text-sl-heading hover:text-sl-accent text-left"
-                    >
-                      {ev.title}
-                    </button>
-                    <span className="font-mono tabular-nums text-sl-muted">
-                      {new Date(ev.startsAt).toLocaleDateString(
-                        isEn ? 'en-GB' : 'de-DE',
-                        { weekday: 'short', day: '2-digit', month: '2-digit' }
-                      )}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          {(bootstrap?.events.length ?? 0) === 0 && (
-            <section className="rounded-xl border border-sl-border bg-sl-surface p-8 text-center space-y-3">
-              <Calendar className="w-8 h-8 text-sl-subtle mx-auto" />
-              <p className="text-sm font-medium text-sl-heading">
-                {tAttendance(ctx.locale, 'noEventsTitle')}
-              </p>
-              <p className="text-xs text-sl-muted">
-                {tAttendance(ctx.locale, 'noEventsHint')}
-              </p>
-              {isStaff && (
-                <button
-                  type="button"
-                  onClick={() => openOverlayForEvent(null)}
-                  className="px-4 py-2 rounded-lg bg-sl-accent hover:bg-sl-accent-hover text-xs font-medium text-sl-accent-contrast inline-flex items-center gap-1.5"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>{tAttendance(ctx.locale, 'ctaNewEvent')}</span>
-                </button>
-              )}
-            </section>
-          )}
-        </div>
-      ) : ctx.aktuellerTab === 'calendar' ? (
-        <CalendarView
-          events={bootstrap?.events ?? []}
-          isStaff={isStaff}
-          locale={ctx.locale}
-          onSelectEvent={(id) => setSelectedEventId(id)}
-          onQuickRsvp={(id, st) => handleRsvp(id, st, '')}
-          onCreateEvent={() => openOverlayForEvent(null)}
-        />
-      ) : ctx.aktuellerTab === 'absences' ? (
-        <AbsencesView
-          absences={bootstrap?.absences ?? []}
-          roster={bootstrap?.roster ?? []}
-          currentUserUuid={ctx.benutzer.uuid}
-          isStaff={isStaff}
-          locale={ctx.locale}
-          onCreateAbsence={async (payload) => {
-            const res = await createAbsence(ctx.team.id, payload);
-            await loadAll();
-            return res;
-          }}
-          onDeleteAbsence={async (id) => {
-            await deleteAbsence(ctx.team.id, id);
-            await loadAll();
-          }}
-        />
-      ) : ctx.aktuellerTab === 'checkin' && isStaff ? (
-        <LiveCheckInView
-          events={bootstrap?.events ?? []}
-          selectedEventId={selectedEventId}
-          detail={eventDetail}
-          loadingDetail={loadingDetail}
-          liveCheckinEnabled={bootstrap?.settings.liveCheckinEnabled ?? false}
-          roster={bootstrap?.roster ?? []}
-          locale={ctx.locale}
-          onSelectEvent={(id) => setSelectedEventId(id)}
-          onSaveCheckIn={handleSaveCheckIn}
-          onOpenTeamSettings={ctx.onTeamSettingsOeffnen}
-        />
-      ) : ctx.aktuellerTab === 'editor' && isStaff ? (
-        <EventFormTabView
-          season={ctx.gewaehlteSaison}
-          draft={eventDraft}
-          onDraftChange={setEventDraft}
-          roster={bootstrap?.roster ?? []}
-          locale={ctx.locale}
-          onCancel={() => {
-            setEventDraft(createEventFormDraft(defaultCutoffMinutes, null));
-            ctx.onTabWechseln('calendar');
-          }}
-          onPopInOverlay={() => {
-            ctx.onTabWechseln('calendar');
-            setShowEventModal(true);
-          }}
-          onSave={handleSaveEvent}
-        />
-      ) : (
-        <StatsView
-          teamId={ctx.team.id}
-          season={ctx.gewaehlteSaison}
-          isStaff={isStaff}
-          locale={ctx.locale}
-        />
-      )}
-
-      {showEventModal && isStaff && (
-        <EventFormModal
-          season={ctx.gewaehlteSaison}
-          draft={eventDraft}
-          onDraftChange={setEventDraft}
-          roster={bootstrap?.roster ?? []}
-          locale={ctx.locale}
-          onClose={() => setShowEventModal(false)}
-          onPopOutToTab={() => {
-            setShowEventModal(false);
-            ctx.onTabWechseln('editor');
-          }}
-          onSave={handleSaveEvent}
-        />
-      )}
+        {showEventModal && isStaff && (
+          <EventFormModal
+            season={ctx.gewaehlteSaison}
+            draft={eventDraft}
+            onDraftChange={setEventDraft}
+            roster={bootstrap?.roster ?? []}
+            locale={ctx.locale}
+            onClose={() => setShowEventModal(false)}
+            onPopOutToTab={() => {
+              setShowEventModal(false);
+              ctx.onTabWechseln('editor');
+            }}
+            onSave={handleSaveEvent}
+          />
+        )}
       </div>
     </div>
   );
